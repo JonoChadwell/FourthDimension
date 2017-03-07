@@ -1,5 +1,7 @@
 #pragma once
 
+#define PI 3.1416
+
 #include <glm/vec3.hpp>
 #include <GLFW/glfw3.h>
 
@@ -109,6 +111,12 @@ namespace controls {
             if (mouse_pos_initialized) {
                 theta -= (x - lastX) / 1000.0;
                 phi -= (y - lastY) / 1000.0;
+            }
+            if (phi < -PI / 2 + 0.1) {
+                phi = -PI / 2 + 0.1;
+            }
+            if (phi > PI / 2 - 0.1) {
+                phi = PI / 2 - 0.1;
             }
             lastX = x;
             lastY = y;

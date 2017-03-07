@@ -49,3 +49,23 @@ public:
 protected:
     void load_geometry();
 };
+
+class Cube : public HyperShape
+{
+public:
+    Cube();
+    ~Cube();
+
+protected:
+    void load_geometry();
+};
+
+class Square : public HyperShape
+{
+public:
+    Square();
+    ~Square();
+
+protected:
+    void load_geometry();
+};

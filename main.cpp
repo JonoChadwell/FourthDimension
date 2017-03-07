@@ -66,6 +66,7 @@ static void init()
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
     glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     hyper_cube = new HyperCube();
@@ -80,6 +81,7 @@ static void init()
     prog->addUniform("V");
     prog->addUniform("M");
     prog->addUniform("Q");
+    prog->addUniform("R");
     prog->addUniform("objPos");
     prog->addAttribute("vertPos");
     prog->addAttribute("vertNor");
@@ -100,9 +102,10 @@ static void update()
     lastTime = time;
 
     vec3 up = vec3(0, 1, 0);
-    vec3 y = up;
     vec3 z = forwards();
-    vec3 x = cross(y, z);
+    vec3 x = cross(up, z);
+    vec3 y = cross(z, x);
+
     eye += x * (controls::vel.x * delta * PLAYER_SPEED);
     eye += y * (controls::vel.y * delta * PLAYER_SPEED);
     eye += z * (controls::vel.z * delta * PLAYER_SPEED);
@@ -125,6 +128,7 @@ static void render()
     MatrixStack *V = new MatrixStack();
     MatrixStack *M = new MatrixStack();
     MatrixStack *Q = new MatrixStack();
+    MatrixStack *R = new MatrixStack();
 
     P->pushMatrix();
     P->loadIdentity();
@@ -147,24 +151,31 @@ static void render()
     Q->pushMatrix();
     Q->loadIdentity();
 
-    Q->rotate4d(t / 3, 1, 3);
-    Q->rotate4d(t / 4, 2, 3);
-    Q->rotate4d(t / 5, 0, 2);
+    Q->rotate4d(t / 10, 0, 1);
+    Q->rotate4d(t / 10, 2, 3);
 
     glUniformMatrix4fv(prog->getUniform("Q"), 1, GL_FALSE, value_ptr(Q->topMatrix()));
-    glUniform4f(prog->getUniform("objPos"), 0.0f, 0.0f, 0.0f, 0.0f);
-    hyper_cube->draw(prog);
+    
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            for (int k = 0; k < 4; k++) {
+                //for (int l = 0; l < 4; l++) {
+                    R->pushMatrix();
+                    R->loadIdentity();
 
-    /*
-    vec4 fourthDimPos = vec4(1.0f);
-    print("FDP", fourthDimPos);
-    vec4 projectedPos = Q->topMatrix() * fourthDimPos;
-    print("PP", projectedPos);
-    vec4 fragWorld = M->topMatrix() * vec4(projectedPos.x, projectedPos.y, projectedPos.z, 1.0f);
-    print("FW", fragWorld);
-    vec4 position = P->topMatrix() * V->topMatrix() * fragWorld;
-    print("finalPosition", position);
-    */
+                    R->rotate4d(i * PI / 4, 0, 3);
+                    R->rotate4d(j * PI / 4, 1, 3);
+                    R->rotate4d(k * PI / 4, 2, 3);
+
+                    glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
+                    glUniform4f(prog->getUniform("objPos"), 8.0f * i, 8.0f * j, 8.0f * k, 8.0f * 0);
+                    hyper_cube->draw(prog);
+
+                    R->popMatrix();
+                //}
+            }
+        }
+    }
 
     Q->popMatrix();
     M->popMatrix();
@@ -174,6 +185,7 @@ static void render()
     delete V;
     delete M;
     delete Q;
+    delete R;
 }
 
 int main(int argc, char **argv)

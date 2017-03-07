@@ -6,6 +6,6 @@ out vec4 color;
 
 void main()
 {
-    vec3 normal = normalize(fragNormal);
-    color = vec4(-normal, 0.3);
+    vec3 normal = normalize(fragNormalWorld);
+    color = vec4(-normal, 1.0);
 }
