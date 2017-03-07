@@ -151,8 +151,8 @@ static void render()
     Q->pushMatrix();
     Q->loadIdentity();
 
-    Q->rotate4d(t / 10, 0, 1);
-    Q->rotate4d(t / 10, 2, 3);
+    //Q->rotate4d(t / 10, 0, 1);
+    //Q->rotate4d(t / 10, 2, 3);
 
     glUniformMatrix4fv(prog->getUniform("Q"), 1, GL_FALSE, value_ptr(Q->topMatrix()));
     
@@ -163,9 +163,9 @@ static void render()
                     R->pushMatrix();
                     R->loadIdentity();
 
-                    R->rotate4d(i * PI / 4, 0, 3);
-                    R->rotate4d(j * PI / 4, 1, 3);
-                    R->rotate4d(k * PI / 4, 2, 3);
+                    //R->rotate4d(i * PI / 4, 0, 3);
+                    //R->rotate4d(j * PI / 4, 1, 3);
+                    //R->rotate4d(k * PI / 4, 2, 3);
 
                     glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
                     glUniform4f(prog->getUniform("objPos"), 8.0f * i, 8.0f * j, 8.0f * k, 8.0f * 0);

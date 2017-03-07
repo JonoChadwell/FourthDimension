@@ -10,7 +10,7 @@ uniform mat4 R;
 uniform vec4 objPos;
 
 out vec3 fragWorld;
-out vec3 fragNormal;
+out vec4 fragNormal;
 out vec3 fragNormalWorld;
 
 void main()
@@ -22,6 +22,6 @@ void main()
     
     fragWorld = worldPos.xyz;
     vec4 projectedNormal = Q * R * vertNor;
-    fragNormal = vertNor.xyz;
+    fragNormal = vertNor;
     fragNormalWorld = (M * vec4(projectedNormal.xyz, 0)).xyz;
 }

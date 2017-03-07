@@ -8,6 +8,17 @@
 
 using namespace std;
 
+namespace {
+    int numbits(int val)
+    {
+        int rtn = 0;
+        while (val) {
+            rtn += val & 1;
+            val >>= 1;
+        }
+        return rtn;
+    }
+}
 
 HyperShape::HyperShape() :
     eleBufID(NULL),
@@ -94,35 +105,6 @@ void HyperShape::draw(Program *prog)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-
-namespace {
-
-    // varies v1 and v2 while keeping hold constant to produce a surface
-    void vary_hold(vector<unsigned int> *buff, int v1, int v2, int hold)
-    {
-        int a = hold;
-        int b = v1 | hold;
-        int c = v2 | hold;
-        int d = v1 | v2 | hold;
-
-        buff->push_back(a);
-        buff->push_back(b);
-        buff->push_back(c);
-
-        buff->push_back(b);
-        buff->push_back(c);
-        buff->push_back(d);
-    }
-
-    void create_surfaces(vector<unsigned int> *buff, int a, int b, int c, int d) {
-        vary_hold(buff, a, b, 0);
-        vary_hold(buff, a, b, c);
-        vary_hold(buff, a, b, d);
-        vary_hold(buff, a, b, c | d);
-    }
-
-}
-
 HyperSphere::HyperSphere()
 {
 }
@@ -147,6 +129,7 @@ HyperCube::~HyperCube()
 void HyperCube::load_geometry()
 {
     posBuf = {
+        // zw surfaces
         -1, -1, -1, -1,
         -1, -1, -1, 1,
         -1, -1, 1, -1,
@@ -162,41 +145,133 @@ void HyperCube::load_geometry()
         1, 1, -1, -1,
         1, 1, -1, 1,
         1, 1, 1, -1,
-        1, 1, 1, 1
-    };
+        1, 1, 1, 1,
 
-    norBuf = {
+        // yw surfaces
         -1, -1, -1, -1,
         -1, -1, -1, 1,
-        -1, -1, 1, -1,
-        -1, -1, 1, 1,
         -1, 1, -1, -1,
         -1, 1, -1, 1,
+        -1, -1, 1, -1,
+        -1, -1, 1, 1,
         -1, 1, 1, -1,
         -1, 1, 1, 1,
         1, -1, -1, -1,
         1, -1, -1, 1,
-        1, -1, 1, -1,
-        1, -1, 1, 1,
         1, 1, -1, -1,
         1, 1, -1, 1,
+        1, -1, 1, -1,
+        1, -1, 1, 1,
         1, 1, 1, -1,
-        1, 1, 1, 1
+        1, 1, 1, 1,
+        
+        // xw surfaces
+        -1, -1, -1, -1,
+        -1, -1, -1, 1,
+        1, -1, -1, -1,
+        1, -1, -1, 1,
+        -1, -1, 1, -1,
+        -1, -1, 1, 1,
+        1, -1, 1, -1,
+        1, -1, 1, 1,
+        -1, 1, -1, -1,
+        -1, 1, -1, 1,
+        1, 1, -1, -1,
+        1, 1, -1, 1,
+        -1, 1, 1, -1,
+        -1, 1, 1, 1,
+        1, 1, 1, -1,
+        1, 1, 1, 1,
+
+        // xz surfaces
+        -1, -1, -1, -1,
+        -1, -1, 1, -1,
+        1, -1, -1, -1,
+        1, -1, 1, -1,
+        -1, -1, -1, 1,
+        -1, -1, 1, 1,
+        1, -1, -1, 1,
+        1, -1, 1, 1,
+        -1, 1, -1, -1,
+        -1, 1, 1, -1,
+        1, 1, -1, -1,
+        1, 1, 1, -1,
+        -1, 1, -1, 1,
+        -1, 1, 1, 1,
+        1, 1, -1, 1,
+        1, 1, 1, 1,
+       
+        // yz surfaces
+        -1, -1, -1, -1,
+        -1, -1, 1, -1,
+        -1, 1, -1, -1,
+        -1, 1, 1, -1,
+        -1, -1, -1, 1,
+        -1, -1, 1, 1,
+        -1, 1, -1, 1,
+        -1, 1, 1, 1,
+        1, -1, -1, -1,
+        1, -1, 1, -1,
+        1, 1, -1, -1,
+        1, 1, 1, -1,
+        1, -1, -1, 1,
+        1, -1, 1, 1,
+        1, 1, -1, 1,
+        1, 1, 1, 1,
+
+        // xy surfaces
+        -1, -1, -1, -1,
+        -1, 1, -1, -1,
+        1, -1, -1, -1,
+        1, 1, -1, -1,
+        -1, -1, -1, 1,
+        -1, 1, -1, 1,
+        1, -1, -1, 1,
+        1, 1, -1, 1,
+        -1, -1, 1, -1,
+        -1, 1, 1, -1,
+        1, -1, 1, -1,
+        1, 1, 1, -1,
+        -1, -1, 1, 1,
+        -1, 1, 1, 1,
+        1, -1, 1, 1,
+        1, 1, 1, 1,
     };
 
+    norBuf = {};
     eleBuf = {};
 
-    int x = 0x01;
-    int y = 0x02;
-    int z = 0x04;
-    int w = 0x08;
-    
-    create_surfaces(&eleBuf, x, y, z, w);
-    create_surfaces(&eleBuf, x, z, y, w);
-    create_surfaces(&eleBuf, x, w, y, z);
-    create_surfaces(&eleBuf, y, z, x, w);
-    create_surfaces(&eleBuf, y, w, x, z);
-    create_surfaces(&eleBuf, w, z, x, y);
+    for (int i = 0; i < posBuf.size() / 16; i++) {
+        norBuf.push_back(1);
+        norBuf.push_back(0);
+        norBuf.push_back(0);
+        norBuf.push_back(0);
+
+        norBuf.push_back(0);
+        norBuf.push_back(1);
+        norBuf.push_back(0);
+        norBuf.push_back(0);
+
+        norBuf.push_back(0);
+        norBuf.push_back(0);
+        norBuf.push_back(0);
+        norBuf.push_back(1);
+
+        norBuf.push_back(0);
+        norBuf.push_back(0);
+        norBuf.push_back(1);
+        norBuf.push_back(0);
+    }
+
+    for (int i = 0; i < posBuf.size() / 16; i++) {
+        eleBuf.push_back(4 * i + 0);
+        eleBuf.push_back(4 * i + 1);
+        eleBuf.push_back(4 * i + 2);
+
+        eleBuf.push_back(4 * i + 1);
+        eleBuf.push_back(4 * i + 2);
+        eleBuf.push_back(4 * i + 3);
+    }
 }
 
 Cube::Cube()
@@ -210,41 +285,71 @@ Cube::~Cube()
 void Cube::load_geometry()
 {
     posBuf = {
-        -1, -1, -1, 0,
-        -1, -1, -1, 0,
-        -1, -1, 1, 0,
-        -1, -1, 1, 0,
-        -1, 1, -1, 0,
-        -1, 1, -1, 0,
-        -1, 1, 1, 0,
-        -1, 1, 1, 0
-    };
-
-    norBuf = {
-        -1, -1, -1, 0,
+        // xz surfaces
         -1, -1, -1, 0,
         -1, -1, 1, 0,
-        -1, -1, 1, 0,
-        -1, 1, -1, 0,
+        1, -1, -1, 0,
+        1, -1, 1, 0
         -1, 1, -1, 0,
         -1, 1, 1, 0,
-        -1, 1, 1, 0
+        1, 1, -1, 0,
+        1, 1, 1, 0,
+
+        // yz surfaces
+        -1, -1, -1, 0,
+        -1, -1, 1, 0,
+        -1, 1, -1, 0,
+        -1, 1, 1, 0,
+        1, -1, -1, 0,
+        1, -1, 1, 0,
+        1, 1, -1, 0,
+        1, 1, 1, 0,
+
+        // xy surfaces
+        -1, -1, -1, 0,
+        -1, 1, -1, 0,
+        1, -1, -1, 0,
+        1, 1, -1, 0,
+        -1, -1, 1, 0,
+        -1, 1, 1, 0,
+        1, -1, 1, 0,
+        1, 1, 1, 0,
     };
 
-    eleBuf = {
-        0, 1, 3,
-        1, 2, 3,
-        0, 2, 6,
-        0, 4, 6,
-        4, 5, 7,
-        4, 6, 7,
-        6, 7, 3,
-        2, 3, 6,
-        0, 1, 5,
-        0, 5, 4,
-        1, 5, 7,
-        1, 3, 7
-    };
+    norBuf = {};
+    eleBuf = {};
+
+    for (int i = 0; i < posBuf.size() / 16; i++) {
+        norBuf.push_back(1);
+        norBuf.push_back(0);
+        norBuf.push_back(0);
+        norBuf.push_back(0);
+
+        norBuf.push_back(0);
+        norBuf.push_back(1);
+        norBuf.push_back(0);
+        norBuf.push_back(0);
+
+        norBuf.push_back(0);
+        norBuf.push_back(0);
+        norBuf.push_back(0);
+        norBuf.push_back(1);
+
+        norBuf.push_back(0);
+        norBuf.push_back(0);
+        norBuf.push_back(1);
+        norBuf.push_back(0);
+    }
+
+    for (int i = 0; i < posBuf.size() / 16; i++) {
+        eleBuf.push_back(4 * i + 0);
+        eleBuf.push_back(4 * i + 1);
+        eleBuf.push_back(4 * i + 2);
+
+        eleBuf.push_back(4 * i + 1);
+        eleBuf.push_back(4 * i + 2);
+        eleBuf.push_back(4 * i + 3);
+    }
 }
 
 Square::Square()
