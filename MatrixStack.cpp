@@ -49,9 +49,42 @@ void MatrixStack::scale(const vec3 &scaleV)
 
 void MatrixStack::scale(float size)
 {
-   mat4 &top = mstack->top();
+    mat4 &top = mstack->top();
 	mat4 s = glm::scale(mat4(1.0), vec3(size));
 	top *= s;
+}
+
+void MatrixStack::scale4d(float size)
+{
+    mat4 &top = mstack->top();
+    mat4 s = mat4(0.0f);
+    s[0][0] = size;
+    s[1][1] = size;
+    s[2][2] = size;
+    s[3][3] = size;
+    top *= s;
+}
+
+void MatrixStack::scale4d(vec4 size)
+{
+    mat4 &top = mstack->top();
+    mat4 s = mat4(0.0f);
+    s[0][0] = size[0];
+    s[1][1] = size[1];
+    s[2][2] = size[2];
+    s[3][3] = size[3];
+    top *= s;
+}
+
+void MatrixStack::scale4d(float x, float y, float z, float w)
+{
+    mat4 &top = mstack->top();
+    mat4 s = mat4(0.0f);
+    s[0][0] = x;
+    s[1][1] = y;
+    s[2][2] = z;
+    s[3][3] = w;
+    top *= s;
 }
 
 void MatrixStack::rotate(float angle, const vec3 &axis)

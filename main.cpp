@@ -5,6 +5,8 @@
 #include "MatrixStack.h"
 #include "Controls.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <cmath>
 #include <iostream>
 
@@ -27,8 +29,6 @@
 #define Z_VOLUME 2
 #define W_VOLUME 3
 
-#define PI 3.1416
-
 using namespace glm;
 using namespace std;
 
@@ -37,11 +37,9 @@ GLFWwindow *window;
 int window_width = 800;
 int window_height = 600;
 
-HyperShape* hyper_cube;
-HyperShape* cube;
-HyperShape* square;
+
 Program* prog;
-Program* point_prog;
+// Program* point_prog;
 
 vec3 eye = vec3(0, 0, -10);
 
@@ -71,14 +69,7 @@ static void init()
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    hyper_cube = new HyperCube();
-    hyper_cube->init();
-    
-    cube = new Cube();
-    cube->init();
-    
-    square = new Square();
-    square->init();
+    HyperShapes::initialize();
 
     prog = new Program();
     prog->setVerbose(true);
@@ -91,8 +82,9 @@ static void init()
     prog->addUniform("Q");
     prog->addUniform("R");
     prog->addUniform("objPos");
+    prog->addUniform("renderMode");
     prog->addAttribute("vertPos");
-    prog->addAttribute("vertNor");
+    prog->addAttribute("vertSide");
 }
 
 static vec3 forwards()
@@ -163,29 +155,34 @@ static void render()
 
     glUniformMatrix4fv(prog->getUniform("Q"), 1, GL_FALSE, value_ptr(Q->topMatrix()));
     
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
+    //for (int i = 0; i < 3; i++) {
+        //for (int j = 0; j < 3; j++) {
             R->pushMatrix();
             R->loadIdentity();
             
-            R->rotate4d(i * PI / 10, 0, 1);
-            R->rotate4d(j * PI / 10, 1, 2);
+            //R->rotate4d(i * PI / 10, 0, 1);
+            //R->rotate4d(j * PI / 10, 1, 2);
             
-            R->rotate4d(controls::r1, 0, 3);
-            R->rotate4d(controls::r2, 1, 3);
-            R->rotate4d(controls::r3, 2, 3);
-            R->rotate4d(controls::r4, 0, 3);
+            R->rotate4d(controls::r1, 0, 1);
+            R->rotate4d(controls::r2, 1, 2);
+            R->rotate4d(controls::r3, 0, 3);
+            R->rotate4d(controls::r4, 1, 3);
+            R->rotate4d(controls::r5, 2, 3);
+
+            R->scale4d(2.0f);
 
             //R->rotate4d((16 * i + 4 * j + k) * PI / 40, 0, 3);
 
             glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
-            glUniform4f(prog->getUniform("objPos"), 8.0f * i - 8, 8.0f * j - 8, 0, 8.0f * 0);
-            hyper_cube->draw(prog);
+            glUniform4f(prog->getUniform("objPos"), 8.0f * 0, 8.0f * 0, 0, 8.0f * 0);
+            HyperShapes::hyper_cube->draw(prog);
+            
             // square->draw(prog);
-
+            //R->popMatrix();
+            //R->popMatrix();
             R->popMatrix();
-        }
-    }
+        //}
+    //}
 
     Q->popMatrix();
     M->popMatrix();

@@ -6,12 +6,15 @@
 
 #include "Shape.h"
 
+#define RENDER_TRIS_WIREFRAME 1
+#define RENDER_QUADS_WIREFRAME 2
+
 class Program;
 
 class HyperShape
 {
 public:
-    HyperShape();
+    HyperShape(int renderMode);
     virtual ~HyperShape();
     void init();
     void draw(Program *prog);
@@ -20,12 +23,13 @@ protected:
     virtual void load_geometry() = 0;
     std::vector<unsigned int> eleBuf;
     std::vector<float> posBuf;
-    std::vector<float> norBuf;
+    std::vector<float> sideBuf;
 
 private:
+    int renderMode;
     unsigned eleBufID;
     unsigned posBufID;
-    unsigned norBufID;
+    unsigned sideBufID;
     unsigned vaoID;
 };
 
@@ -69,3 +73,29 @@ public:
 protected:
     void load_geometry();
 };
+
+class Simplex : public HyperShape
+{
+public:
+    Simplex(int dimensions);
+    ~Simplex();
+
+protected:
+    void load_geometry();
+
+private:
+    int dimensions;
+};
+
+namespace HyperShapes {
+
+    extern HyperShape* hyper_cube;
+    extern HyperShape* cube;
+    extern HyperShape* square;
+    extern HyperShape* triangle;
+    extern HyperShape* tetrahedron;
+    extern HyperShape* five_cell;
+    extern HyperShape* hyper_sphere;
+
+    void initialize();
+}

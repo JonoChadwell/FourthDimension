@@ -3,12 +3,43 @@
 #include "GLSL.h"
 #include "Program.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <vector>
+#include <cmath>
 #include <iostream>
+
+struct test {
+    bool a;
+    int b;
+};
 
 using namespace std;
 
 namespace {
+
+    void push_quad_side(vector<float> *sideBuf) {
+        sideBuf->push_back(1);
+        sideBuf->push_back(0);
+        sideBuf->push_back(0);
+        sideBuf->push_back(0);
+
+        sideBuf->push_back(0);
+        sideBuf->push_back(1);
+        sideBuf->push_back(0);
+        sideBuf->push_back(0);
+
+        sideBuf->push_back(0);
+        sideBuf->push_back(0);
+        sideBuf->push_back(0);
+        sideBuf->push_back(1);
+
+        sideBuf->push_back(0);
+        sideBuf->push_back(0);
+        sideBuf->push_back(1);
+        sideBuf->push_back(0);
+    }
+
     int numbits(int val)
     {
         int rtn = 0;
@@ -18,13 +49,31 @@ namespace {
         }
         return rtn;
     }
+
+    void push_hs_point(vector<float> *pos, int r1, int r2, int r3, int divisions)
+    {
+        float psi = ((float)r1 / (float)divisions) * M_PI;
+        float theta = ((float)r2 / (float)divisions) * M_PI;
+        float phi = ((float)r3 / (float)divisions) * 2 * M_PI;
+
+        float x = cos(psi);
+        float y = sin(psi) * cos(theta);
+        float z = sin(psi) * sin(theta) * cos(phi);
+        float w = sin(psi) * sin(theta) * sin(phi);
+
+        pos->push_back(x);
+        pos->push_back(y);
+        pos->push_back(z);
+        pos->push_back(w);
+    }
 }
 
-HyperShape::HyperShape() :
+HyperShape::HyperShape(int renderMode) :
     eleBufID(NULL),
     posBufID(NULL),
-    norBufID(NULL),
-    vaoID(0)
+    sideBufID(NULL),
+    vaoID(0),
+    renderMode(renderMode)
 {
 }
 
@@ -45,14 +94,14 @@ void HyperShape::init()
     glBindBuffer(GL_ARRAY_BUFFER, posBufID);
     glBufferData(GL_ARRAY_BUFFER, posBuf.size() * sizeof(float), &posBuf[0], GL_STATIC_DRAW);
 
-    // Send the normal array to the GPU
-    if (norBuf.empty()) {
-        norBufID = 0;
+    // Send the side array to the GPU
+    if (sideBuf.empty()) {
+        sideBufID = 0;
     }
     else {
-        glGenBuffers(1, &norBufID);
-        glBindBuffer(GL_ARRAY_BUFFER, norBufID);
-        glBufferData(GL_ARRAY_BUFFER, norBuf.size() * sizeof(float), &norBuf[0], GL_STATIC_DRAW);
+        glGenBuffers(1, &sideBufID);
+        glBindBuffer(GL_ARRAY_BUFFER, sideBufID);
+        glBufferData(GL_ARRAY_BUFFER, sideBuf.size() * sizeof(float), &sideBuf[0], GL_STATIC_DRAW);
     }
 
     // Send the element array to the GPU
@@ -72,8 +121,10 @@ void HyperShape::init()
 
 void HyperShape::draw(Program *prog)
 {
-    int h_pos, h_nor;
-    h_pos = h_nor = -1;
+    int h_pos, h_side;
+    h_pos = h_side = -1;
+
+    glUniform1i(prog->getUniform("renderMode"), renderMode);
 
     glBindVertexArray(vaoID);
     // Bind position buffer
@@ -82,12 +133,12 @@ void HyperShape::draw(Program *prog)
     glBindBuffer(GL_ARRAY_BUFFER, posBufID);
     glVertexAttribPointer(h_pos, 4, GL_FLOAT, GL_FALSE, 0, (const void *)0);
 
-    // Bind normal buffer
-    h_nor = prog->getAttribute("vertNor");
-    if (h_nor != -1 && norBufID != 0) {
-        GLSL::enableVertexAttribArray(h_nor);
-        glBindBuffer(GL_ARRAY_BUFFER, norBufID);
-        glVertexAttribPointer(h_nor, 4, GL_FLOAT, GL_FALSE, 0, (const void *)0);
+    // Bind side buffer
+    h_side = prog->getAttribute("vertSide");
+    if (h_side != -1 && sideBufID != 0) {
+        GLSL::enableVertexAttribArray(h_side);
+        glBindBuffer(GL_ARRAY_BUFFER, sideBufID);
+        glVertexAttribPointer(h_side, 4, GL_FLOAT, GL_FALSE, 0, (const void *)0);
     }
 
     // Bind element buffer
@@ -97,15 +148,16 @@ void HyperShape::draw(Program *prog)
     glDrawElements(GL_TRIANGLES, (int)eleBuf.size(), GL_UNSIGNED_INT, (const void *)0);
 
     // Disable and unbind
-    if (h_nor != -1) {
-        GLSL::disableVertexAttribArray(h_nor);
+    if (h_side != -1) {
+        GLSL::disableVertexAttribArray(h_side);
     }
     GLSL::disableVertexAttribArray(h_pos);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-HyperSphere::HyperSphere()
+HyperSphere::HyperSphere() :
+    HyperShape(RENDER_QUADS_WIREFRAME)
 {
 }
 
@@ -113,12 +165,70 @@ HyperSphere::~HyperSphere()
 {
 }
 
+
+
 void HyperSphere::load_geometry()
 {
-    // I have no idea
+    posBuf = {};
+    sideBuf = {};
+    eleBuf = {};
+
+    int divisions = 6;
+    int verticies = 0;
+
+    for (int r1 = 0; r1 < divisions; r1++) {
+        for (int r2 = 0; r2 < divisions; r2++) {
+            for (int r3 = 0; r3 < divisions; r3++) {
+                // XY quads
+                push_hs_point(&posBuf, r1, r2, r3, divisions);
+                push_hs_point(&posBuf, r1, r2 + 1, r3, divisions);
+                push_hs_point(&posBuf, r1 + 1, r2, r3, divisions);
+                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3, divisions);
+                push_hs_point(&posBuf, r1, r2, r3 + 1, divisions);
+                push_hs_point(&posBuf, r1, r2 + 1, r3 + 1, divisions);
+                push_hs_point(&posBuf, r1 + 1, r2, r3 + 1, divisions);
+                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3 + 1, divisions);
+
+                // XZ quads
+                push_hs_point(&posBuf, r1, r2, r3, divisions);
+                push_hs_point(&posBuf, r1, r2, r3 + 1, divisions);
+                push_hs_point(&posBuf, r1 + 1, r2, r3, divisions);
+                push_hs_point(&posBuf, r1 + 1, r2, r3 + 1, divisions);
+                push_hs_point(&posBuf, r1, r2 + 1, r3, divisions);
+                push_hs_point(&posBuf, r1, r2 + 1, r3 + 1, divisions);
+                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3, divisions);
+                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3 + 1, divisions);
+
+                // YZ quads
+                push_hs_point(&posBuf, r1, r2, r3, divisions);
+                push_hs_point(&posBuf, r1, r2 + 1, r3, divisions);
+                push_hs_point(&posBuf, r1, r2, r3 + 1, divisions);
+                push_hs_point(&posBuf, r1, r2 + 1, r3 + 1, divisions);
+                push_hs_point(&posBuf, r1 + 1, r2, r3, divisions);
+                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3, divisions);
+                push_hs_point(&posBuf, r1 + 1, r2, r3 + 1, divisions);
+                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3 + 1, divisions);
+            }
+        }
+    }
+
+    for (int i = 0; i < posBuf.size() / 16; i++) {
+        push_quad_side(&sideBuf);
+    }
+
+    for (int i = 0; i < posBuf.size() / 16; i++) {
+        eleBuf.push_back(4 * i + 0);
+        eleBuf.push_back(4 * i + 1);
+        eleBuf.push_back(4 * i + 2);
+
+        eleBuf.push_back(4 * i + 1);
+        eleBuf.push_back(4 * i + 2);
+        eleBuf.push_back(4 * i + 3);
+    }
 }
 
-HyperCube::HyperCube()
+HyperCube::HyperCube() :
+    HyperShape(RENDER_QUADS_WIREFRAME)
 {
 }
 
@@ -238,29 +348,11 @@ void HyperCube::load_geometry()
         1, 1, 1, 1,
     };
 
-    norBuf = {};
+    sideBuf = {};
     eleBuf = {};
 
     for (int i = 0; i < posBuf.size() / 16; i++) {
-        norBuf.push_back(1);
-        norBuf.push_back(0);
-        norBuf.push_back(0);
-        norBuf.push_back(0);
-
-        norBuf.push_back(0);
-        norBuf.push_back(1);
-        norBuf.push_back(0);
-        norBuf.push_back(0);
-
-        norBuf.push_back(0);
-        norBuf.push_back(0);
-        norBuf.push_back(0);
-        norBuf.push_back(1);
-
-        norBuf.push_back(0);
-        norBuf.push_back(0);
-        norBuf.push_back(1);
-        norBuf.push_back(0);
+        push_quad_side(&sideBuf);
     }
 
     for (int i = 0; i < posBuf.size() / 16; i++) {
@@ -274,7 +366,8 @@ void HyperCube::load_geometry()
     }
 }
 
-Cube::Cube()
+Cube::Cube() :
+    HyperShape(RENDER_QUADS_WIREFRAME)
 {
 }
 
@@ -285,7 +378,6 @@ Cube::~Cube()
 void Cube::load_geometry()
 {
     posBuf = {
-    
         // xz surfaces
         -1, -1, -1, 0,
         -1, -1, 1, 0,
@@ -317,29 +409,11 @@ void Cube::load_geometry()
         1, 1, 1, 0,
     };
 
-    norBuf = {};
+    sideBuf = {};
     eleBuf = {};
 
     for (int i = 0; i < posBuf.size() / 16; i++) {
-        norBuf.push_back(1);
-        norBuf.push_back(0);
-        norBuf.push_back(0);
-        norBuf.push_back(0);
-
-        norBuf.push_back(0);
-        norBuf.push_back(1);
-        norBuf.push_back(0);
-        norBuf.push_back(0);
-
-        norBuf.push_back(0);
-        norBuf.push_back(0);
-        norBuf.push_back(0);
-        norBuf.push_back(1);
-
-        norBuf.push_back(0);
-        norBuf.push_back(0);
-        norBuf.push_back(1);
-        norBuf.push_back(0);
+        push_quad_side(&sideBuf);
     }
 
     for (int i = 0; i < posBuf.size() / 16; i++) {
@@ -353,7 +427,8 @@ void Cube::load_geometry()
     }
 }
 
-Square::Square()
+Square::Square() :
+    HyperShape(RENDER_QUADS_WIREFRAME)
 {
 }
 
@@ -370,7 +445,7 @@ void Square::load_geometry()
         1, 1, 0, 0
     };
 
-    norBuf = {
+    sideBuf = {
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 0, 1,
@@ -382,3 +457,131 @@ void Square::load_geometry()
         1, 2, 3
     };
 }
+
+Simplex::Simplex(int dimensions) :
+    HyperShape(RENDER_TRIS_WIREFRAME),
+    dimensions(dimensions)
+{
+    if (dimensions < 2 || dimensions > 4)
+    {
+        cerr << dimensions << "-Simplex not supported" << endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
+Simplex::~Simplex()
+{
+}
+
+vector<vector<vector<float>>> simplex_verticies = 
+{
+// 0-simplex
+{},
+// 1-simplex
+{},
+// 2-simplex (triangle)
+{
+    {0.0f, 1.0f, 0, 0},
+    {0.8660254f, -0.5f, 0, 0},
+    {-0.8660254f, -0.5f, 0, 0},
+},
+// 3-simplex (tetrahedron)
+{
+    {1.0f, 1, 1, 0},
+    {1, -1, -1, 0},
+    {-1, 1, -1, 0},
+    {-1, -1, 1, 0},
+},
+// 4-simplex (5-cell)
+{
+    {1 / sqrt(10.0f), 1 / sqrt(6.0f), 1 / sqrt(3.0f), 1},
+    {1 / sqrt(10.0f), 1 / sqrt(6.0f), 1 / sqrt(3.0f), -1},
+    {1 / sqrt(10.0f), 1 / sqrt(6.0f), -2 / sqrt(3.0f), 0},
+    {1 / sqrt(10.0f), -sqrt(3.0f / 2.0f), 0, 0},
+    {-2 * sqrt(2.0f / 5.0f), 0, 0, 0},
+},
+};
+
+void Simplex::load_geometry()
+{
+    posBuf = {};
+    sideBuf = {};
+    eleBuf = {};
+
+    int verticies = 0;
+
+    for (int c1 = 0; c1 <= dimensions; c1++) {
+        for (int c2 = c1 + 1; c2 <= dimensions; c2++) {
+            for (int c3 = c2 + 1; c3 <= dimensions; c3++) {
+                for (int i = 0; i < 4; i++) {
+                    posBuf.push_back(simplex_verticies[dimensions][c1][i]);
+                }
+                for (int i = 0; i < 4; i++) {
+                    posBuf.push_back(simplex_verticies[dimensions][c2][i]);
+                }
+                for (int i = 0; i < 4; i++) {
+                    posBuf.push_back(simplex_verticies[dimensions][c3][i]);
+                }
+
+                sideBuf.push_back(1);
+                sideBuf.push_back(0);
+                sideBuf.push_back(0);
+                sideBuf.push_back(0);
+
+                sideBuf.push_back(0);
+                sideBuf.push_back(1);
+                sideBuf.push_back(0);
+                sideBuf.push_back(0);
+
+                sideBuf.push_back(0);
+                sideBuf.push_back(0);
+                sideBuf.push_back(1);
+                sideBuf.push_back(0);
+
+                eleBuf.push_back(verticies++);
+                eleBuf.push_back(verticies++);
+                eleBuf.push_back(verticies++);
+            }
+        }
+    }
+}
+
+namespace HyperShapes {
+    HyperShape* hyper_cube;
+    HyperShape* cube;
+    HyperShape* square;
+    HyperShape* triangle;
+    HyperShape* tetrahedron;
+    HyperShape* five_cell;
+    HyperShape* hyper_sphere;
+
+    void initialize()
+    {
+        cout << "Initializing Geometry\n";
+
+        HyperShapes::hyper_cube = new HyperCube();
+        HyperShapes::hyper_cube->init();
+
+        HyperShapes::cube = new Cube();
+        HyperShapes::cube->init();
+
+        HyperShapes::square = new Square();
+        HyperShapes::square->init();
+
+        HyperShapes::triangle = new Simplex(2);
+        HyperShapes::triangle->init();
+
+        HyperShapes::tetrahedron = new Simplex(3);
+        HyperShapes::tetrahedron->init();
+
+        HyperShapes::five_cell = new Simplex(4);
+        HyperShapes::five_cell->init();
+
+        HyperShapes::hyper_sphere = new HyperSphere();
+        HyperShapes::hyper_sphere->init();
+
+        cout << "Initialized Geometry\n";
+    }
+}
+
+

@@ -19,6 +19,7 @@ namespace controls {
     float r2;
     float r3;
     float r4;
+    float r5;
 
     static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
     {
@@ -128,6 +129,14 @@ namespace controls {
         if (key == GLFW_KEY_K && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             r4 -= ROT_AMT;
+        }
+        if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r5 -= ROT_AMT;
+        }
+        if (key == GLFW_KEY_L && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r5 -= ROT_AMT;
         }
     }
 

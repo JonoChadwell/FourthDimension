@@ -42,6 +42,9 @@ public:
    void scale(const vec3 &scaleV);
    //  Right multiplies the top matrix by a scaling matrix
    void scale(float size);
+   void scale4d(float size);
+   void scale4d(vec4 size);
+   void scale4d(float x, float y, float z, float w);
    // Right multiplies the top matrix by a rotation matrix (angle in deg)
    void rotate(float angle, const vec3 &axis);
 
