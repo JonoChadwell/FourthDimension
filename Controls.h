@@ -1,6 +1,7 @@
 #pragma once
 
 #define PI 3.1416
+#define ROT_AMT PI/200
 
 #include <glm/vec3.hpp>
 #include <GLFW/glfw3.h>
@@ -13,7 +14,11 @@ namespace controls {
     bool mouse_pos_initialized = false;
     float theta;
     float phi;
-
+    
+    float r1;
+    float r2;
+    float r3;
+    float r4;
 
     static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
     {
@@ -91,6 +96,38 @@ namespace controls {
             {
                 vel.y = 0;
             }
+        }
+        if (key == GLFW_KEY_T && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r1 += ROT_AMT;
+        }
+        if (key == GLFW_KEY_G && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r1 -= ROT_AMT;
+        }
+        if (key == GLFW_KEY_Y && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r2 += ROT_AMT;
+        }
+        if (key == GLFW_KEY_H && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r2 -= ROT_AMT;
+        }
+        if (key == GLFW_KEY_U && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r3 += ROT_AMT;
+        }
+        if (key == GLFW_KEY_J && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r3 -= ROT_AMT;
+        }
+        if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r4 += ROT_AMT;
+        }
+        if (key == GLFW_KEY_K && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r4 -= ROT_AMT;
         }
     }
 
