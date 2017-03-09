@@ -3,11 +3,15 @@
 #include "HyperShapes.h"
 #include "Program.h"
 #include "MatrixStack.h"
+#include "Controls.h"
 #include <iostream>
 #include <glm/vec4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#define GRAVITY -9.8f
+#define BOUND 10.0f
+
+// objects below this point will recieve quadratically less gravity to prevent jitter
+#define GRAVITY_FALLOFF_HEIGHT 0.02f
 
 // the amount of energy preseved in a collision
 #define COEFFICIENT_OF_RESTITUTION 0.5f
@@ -36,7 +40,6 @@ namespace
         float iv2 = dot(collision_normal, b2->velocity);
         if (iv1 + iv2 > 0)
         {
-            cout << "COLLIDING!\n";
             //// formula lifted from wikipedia
             float fv1 = (COEFFICIENT_OF_RESTITUTION * m2 * (iv2 + iv1) + m2 * iv2 - m1 * iv1) / (m1 + m2);
             float fv2 = (COEFFICIENT_OF_RESTITUTION * m1 * (iv1 + iv2) + m1 * iv1 - m2 * iv2) / (m1 + m2);
@@ -109,7 +112,23 @@ void BallSimulation::update(float dt)
     for (int i = 0; i < objects.size(); i++)
     {
         BallObject *obj = objects[i];
-        obj->velocity.y += GRAVITY * dt;
+        float height;
+        if (controls::gravity < 0) {
+            height = obj->position.y - obj->radius + BOUND;
+        }
+        else
+        {
+            height = -obj->position.y - obj->radius + BOUND;
+        }
+        if (height > GRAVITY_FALLOFF_HEIGHT)
+        {
+            obj->velocity.y += controls::gravity * dt;
+        }
+        else if (height > 0)
+        {
+            float falloff = height / GRAVITY_FALLOFF_HEIGHT;
+            obj->velocity.y += controls::gravity * dt * falloff * falloff;
+        }
     }
 
     // collide with other spheres
@@ -130,16 +149,17 @@ void BallSimulation::update(float dt)
     for (int i = 0; i < objects.size(); i++)
     {
         BallObject *obj = objects[i];
-        wall_collision_min(&(obj->position.y), &(obj->velocity.y), 0, obj->radius);
+        wall_collision_min(&(obj->position.y), &(obj->velocity.y), -BOUND, obj->radius);
+        wall_collision_max(&(obj->position.y), &(obj->velocity.y), BOUND, obj->radius);
 
-        wall_collision_min(&(obj->position.x), &(obj->velocity.x), -10, obj->radius);
-        wall_collision_max(&(obj->position.x), &(obj->velocity.x), 10, obj->radius);
+        wall_collision_min(&(obj->position.x), &(obj->velocity.x), -BOUND, obj->radius);
+        wall_collision_max(&(obj->position.x), &(obj->velocity.x), BOUND, obj->radius);
 
-        wall_collision_min(&(obj->position.z), &(obj->velocity.z), -10, obj->radius);
-        wall_collision_max(&(obj->position.z), &(obj->velocity.z), 10, obj->radius);
+        wall_collision_min(&(obj->position.z), &(obj->velocity.z), -BOUND, obj->radius);
+        wall_collision_max(&(obj->position.z), &(obj->velocity.z), BOUND, obj->radius);
 
-        wall_collision_min(&(obj->position.w), &(obj->velocity.w), -10, obj->radius);
-        wall_collision_max(&(obj->position.w), &(obj->velocity.w), 10, obj->radius);
+        wall_collision_min(&(obj->position.w), &(obj->velocity.w), -BOUND, obj->radius);
+        wall_collision_max(&(obj->position.w), &(obj->velocity.w), BOUND, obj->radius);
     }
 
     // apply friction
@@ -149,11 +169,11 @@ void BallSimulation::update(float dt)
         obj->velocity *= 1 - (FRICTION * dt);
     }
 
-    /*for (int i = 0; i < objects.size(); i++)
-    {
-        BallObject *obj = objects[i];
-        cout << "Position (" << i << "): " << obj->position.x << ", " << obj->position.y << ", " << obj->position.z << ", " << obj->position.w << endl;
-    }*/
+    //for (int i = 0; i < objects.size(); i++)
+    //{
+    //    BallObject *obj = objects[i];
+    //    cout << "Position (" << i << "): " << obj->position.x << ", " << obj->position.y << ", " << obj->position.z << ", " << obj->position.w << endl;
+    //}
 }
 
 void BallSimulation::addObject(vec4 position, float radius, float mass)

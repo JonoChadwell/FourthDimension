@@ -91,8 +91,8 @@ static void init()
     mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
     uniform_real_distribution<> dis(0, 1);
 
-    for (int i = 0; i < 50; i++) {
-        sim->addObject(vec4(dis(gen) * 16 - 8, dis(gen) * 30, dis(gen) * 16 - 8, dis(gen) * 16 - 8), dis(gen) * 2 + 2, dis(gen) * 16 + 2);
+    for (int i = 0; i < 10; i++) {
+        sim->addObject(vec4(dis(gen) * 16 - 8, dis(gen) * 50, dis(gen) * 16 - 8, dis(gen) * 16 - 8), dis(gen) * 5 + 0.1, dis(gen) * 16 + 2);
     }
 
     prog->addUniform("P");
@@ -155,7 +155,7 @@ static void render4dScene()
     R->scale4d(10.0f);
 
     glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
-    glUniform4f(prog->getUniform("objPos"), 0, 10, 0, 0);
+    glUniform4f(prog->getUniform("objPos"), 0, 0, 0, 0);
 
     HyperShapes::hyper_cube->draw(prog);
 
@@ -206,12 +206,11 @@ static void render()
     Q->loadIdentity();
 
     // 4d->3d camera projection transforms
-    Q->rotate4d(controls::r1, 1, 3);
-    Q->rotate4d(controls::r2, 0, 2);
-    
-    //Q->rotate4d(controls::r3, 3, 1);
+    Q->rotate4d(controls::r1, 0, 1);
+    Q->rotate4d(controls::r2, 1, 2);
     Q->rotate4d(controls::r3, 0, 3);
-    Q->rotate4d(controls::r4, 2, 3);
+    Q->rotate4d(controls::r4, 1, 3);
+    Q->rotate4d(controls::r5, 2, 3);
     
 
     glUniformMatrix4fv(prog->getUniform("Q"), 1, GL_FALSE, value_ptr(Q->topMatrix()));
