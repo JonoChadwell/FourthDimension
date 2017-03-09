@@ -4,6 +4,8 @@
 #include "Program.h"
 #include "MatrixStack.h"
 #include "Controls.h"
+
+#include <random>
 #include <iostream>
 #include <glm/vec4.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -22,7 +24,7 @@
 // the velocity overlapping balls will apply to eachother
 #define PUSH_OUT_FORCE 100.0f
 
-#define FRICTION 0.01f
+#define FRICTION 0.08f
 
 using namespace glm;
 using namespace std;
@@ -101,6 +103,12 @@ BallSimulation::~BallSimulation()
 
 void BallSimulation::update(float dt)
 {
+    if (controls::spawn)
+    {
+        addObject();
+        controls::spawn = false;
+    }
+
     // motion
     for (int i = 0; i < objects.size(); i++)
     {
@@ -176,6 +184,16 @@ void BallSimulation::update(float dt)
     //}
 }
 
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_real_distribution<> dis(0, 1);
+
+void BallSimulation::addObject()
+{
+    //objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 50, dis(gen) * 16 - 8, dis(gen) * 16 - 8), dis(gen) * 5 + 0.1, dis(gen) * 16 + 2));
+    objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 16 - 8, dis(gen) * 16 - 8, dis(gen) * 16 - 8), 2, dis(gen) * 16 + 2));
+}
+
 void BallSimulation::addObject(vec4 position, float radius, float mass)
 {
     objects.push_back(new BallObject(position, radius, mass));
@@ -194,6 +212,7 @@ void BallSimulation::render(Program *prog)
         BallObject *obj = objects[i];
         R->pushMatrix();
 
+        R->rotate4d(glfwGetTime() / 10.0, obj->rot1, obj->rot2);
         R->scale4d(obj->radius);
 
         glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));

@@ -14,6 +14,7 @@ public:
     ~BallSimulation();
 
     void update(float dt);
+    void addObject();
     void addObject(glm::vec4 position, float radius, float mass);
     void render(Program *prog);
 

@@ -26,28 +26,43 @@ float edginessQuad(vec4 v)
 
 void main()
 {
-    float en = 1;
-    if (renderMode == 1)
+    if (renderMode == 3)
     {
-        en = edginessTri(fragSide);
-    }
-    if (renderMode == 2)
-    {
-        en = edginessQuad(fragSide);
-    }
-    
-    if (wPart > sliceWidth || wPart < -sliceWidth) 
-    {
-        discard;
-    }
-    
-    if (en < 0.85)
-    {
-        discard;
+        if (sliceWidth < abs(wPart))
+        {
+            discard;
+        }
+        else
+        {
+            float c = ((wPart / sliceWidth) + 1) / 2;
+            color = vec4(c, c, c, 1.0f);
+        }
     }
     else
     {
-        float c = 1 - (1 - en) * 3;
-        color = vec4(c, c, c, 1.0f);
+        float en = 1;
+        if (renderMode == 1)
+        {
+            en = edginessTri(fragSide);
+        }
+        if (renderMode == 2)
+        {
+            en = edginessQuad(fragSide);
+        }
+        
+        if (sliceWidth < abs(wPart)) 
+        {
+            discard;
+        }
+        
+        if (en < 0.85)
+        {
+            discard;
+        }
+        else
+        {
+            float c = 1 - (1 - en) * 3;
+            color = vec4(c, c, c, 1.0f);
+        }
     }
 }

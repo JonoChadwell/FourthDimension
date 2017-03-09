@@ -15,6 +15,9 @@ namespace controls {
     extern bool mouse_pos_initialized;
     extern float theta;
     extern float phi;
+    extern bool spawn;
+    extern bool slice;
+    extern bool paused;
     
     extern float r1;
     extern float r2;

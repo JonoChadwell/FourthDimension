@@ -8,6 +8,7 @@
 
 #define RENDER_TRIS_WIREFRAME 1
 #define RENDER_QUADS_WIREFRAME 2
+#define RENDER_QUADS_STRANGE_COLORED 3
 
 #define HYPERSPHERICAL_PARAMETERIZATION 1
 #define HOPF_PARAMETERIZATION 2
@@ -21,6 +22,7 @@ public:
     virtual ~HyperShape();
     void init();
     void draw(Program *prog);
+    int renderMode;
 
 protected:
     virtual void load_geometry() = 0;
@@ -29,7 +31,6 @@ protected:
     std::vector<float> sideBuf;
 
 private:
-    int renderMode;
     unsigned eleBufID;
     unsigned posBufID;
     unsigned sideBufID;

@@ -14,6 +14,9 @@ namespace controls {
     bool mouse_pos_initialized = false;
     float theta = 0;
     float phi = -M_PI / 6;
+    bool spawn = false;
+    bool slice = false;
+    bool paused = false;
 
     float r1;
     float r2;
@@ -144,6 +147,18 @@ namespace controls {
         if (key == GLFW_KEY_1 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             gravity = -gravity;
+        }
+        if (key == GLFW_KEY_2 && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            spawn = true;
+        }
+        if (key == GLFW_KEY_3 && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            slice = !slice;
+        }
+        if (key == GLFW_KEY_4 && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            paused = !paused;
         }
     }
 

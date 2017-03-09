@@ -10,6 +10,8 @@ public:
 
     float radius;
     float mass;
+    int rot1;
+    int rot2;
     glm::vec4 position;
     glm::vec4 velocity;
 };

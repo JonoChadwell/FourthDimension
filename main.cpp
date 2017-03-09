@@ -9,7 +9,6 @@
 #include <math.h>
 #include <cmath>
 #include <iostream>
-#include <random>
 
 // OpenGL
 #include <GL/glew.h>
@@ -25,7 +24,7 @@
 
 #define PLAYER_SPEED 5
 
-#define MAX_TIME_STEP 0.02f
+#define MAX_TIME_STEP 0.03f
 #define MAX_PHYSICS_STEPS_PER_FRAME 10
 
 using namespace glm;
@@ -87,12 +86,8 @@ static void init()
     sim->addObject(vec4(0, 4, 3, 0), 2.0f, 4.0f);
     sim->addObject(vec4(1, 5, 0, 0), 3.0f, 9.0f);*/
 
-    random_device rd;  //Will be used to obtain a seed for the random number engine
-    mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    uniform_real_distribution<> dis(0, 1);
-
-    for (int i = 0; i < 10; i++) {
-        sim->addObject(vec4(dis(gen) * 16 - 8, dis(gen) * 50, dis(gen) * 16 - 8, dis(gen) * 16 - 8), dis(gen) * 5 + 0.1, dis(gen) * 16 + 2);
+    for (int i = 0; i < 5; i++) {
+        sim->addObject();
     }
 
     prog->addUniform("P");
@@ -130,21 +125,32 @@ static void update()
     eye += y * (controls::vel.y * delta * PLAYER_SPEED);
     eye += z * (controls::vel.z * delta * PLAYER_SPEED);
 
-    int steps = 0;
-    while (delta > MAX_TIME_STEP)
-    {
-        sim->update(MAX_TIME_STEP);
-        delta -= MAX_TIME_STEP;
-        if (++steps >= MAX_PHYSICS_STEPS_PER_FRAME)
+    if (!controls::paused) {
+        int steps = 0;
+        while (delta > MAX_TIME_STEP)
         {
-            break;
+            sim->update(MAX_TIME_STEP);
+            delta -= MAX_TIME_STEP;
+            if (++steps >= MAX_PHYSICS_STEPS_PER_FRAME)
+            {
+                break;
+            }
         }
+        sim->update(delta);
     }
-    sim->update(delta);
 }
 
 static void render4dScene()
 {
+    if (controls::slice)
+    {
+        glUniform1f(prog->getUniform("sliceWidth"), 0.3f);
+    }
+    else
+    {
+        glUniform1f(prog->getUniform("sliceWidth"), 20.0f);
+    }
+
     sim->render(prog);
 
     MatrixStack *R = new MatrixStack();
@@ -156,6 +162,7 @@ static void render4dScene()
 
     glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
     glUniform4f(prog->getUniform("objPos"), 0, 0, 0, 0);
+    glUniform1f(prog->getUniform("sliceWidth"), 20.0f);
 
     HyperShapes::hyper_cube->draw(prog);
 
@@ -206,18 +213,26 @@ static void render()
     Q->loadIdentity();
 
     // 4d->3d camera projection transforms
+
+    // 'Normal'
     Q->rotate4d(controls::r1, 0, 1);
     Q->rotate4d(controls::r2, 1, 2);
     Q->rotate4d(controls::r3, 0, 3);
     Q->rotate4d(controls::r4, 1, 3);
     Q->rotate4d(controls::r5, 2, 3);
-    
+
+    // Preserve Y
+    //Q->rotate4d(controls::r1, 0, 2);
+    //Q->rotate4d(controls::r2, 0, 3);
+    //Q->rotate4d(controls::r3, 2, 3);
+    //Q->rotate4d(controls::r4, 0, 1);
+    //Q->rotate4d(controls::r5, 1, 2);
 
     glUniformMatrix4fv(prog->getUniform("Q"), 1, GL_FALSE, value_ptr(Q->topMatrix()));
 
     // Sets the viewable "depth" into the 4d result component of the model transforms
     // (the "Front" and "Back" planes of the 4d->3d camera's projected hypervolume
-    glUniform1f(prog->getUniform("sliceWidth"), 1000.0f);
+    //glUniform1f(prog->getUniform("sliceWidth"), 0.2f);
     
     // Renders the 4d geometry through the projection cameras
     render4dScene();
