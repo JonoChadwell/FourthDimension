@@ -22,7 +22,7 @@
 #define BOUNCINESS 0.8f
 
 // the velocity overlapping balls will apply to eachother
-#define PUSH_OUT_FORCE 100.0f
+#define PUSH_OUT_FORCE 200.0f
 
 #define FRICTION 0.08f
 
@@ -33,6 +33,9 @@ namespace
 {
     void perform_collision(BallObject *b1, BallObject *b2, float dt)
     {
+        b1->contacts++;
+        b2->contacts++;
+
         vec4 collision_normal = normalize(b1->position - b2->position);
 
         float m1 = b1->mass;
@@ -103,10 +106,31 @@ BallSimulation::~BallSimulation()
 
 void BallSimulation::update(float dt)
 {
+    if (controls::clear)
+    {
+        controls::clear = false;
+        for (int i = 0; i < objects.size(); i++)
+        {
+            BallObject *obj = objects[i];
+            delete obj;
+        }
+        objects.clear();
+        for (int i = 0; i < 3; i++)
+        {
+            addObject();
+        }
+    }
+
     if (controls::spawn)
     {
         addObject();
         controls::spawn = false;
+    }
+
+    for (int i = 0; i < objects.size(); i++)
+    {
+        BallObject *obj = objects[i];
+        obj->contacts = 0;
     }
 
     // motion
@@ -114,29 +138,6 @@ void BallSimulation::update(float dt)
     {
         BallObject *obj = objects[i];
         obj->position += obj->velocity * dt;
-    }
-
-    // gravity
-    for (int i = 0; i < objects.size(); i++)
-    {
-        BallObject *obj = objects[i];
-        float height;
-        if (controls::gravity < 0) {
-            height = obj->position.y - obj->radius + BOUND;
-        }
-        else
-        {
-            height = -obj->position.y - obj->radius + BOUND;
-        }
-        if (height > GRAVITY_FALLOFF_HEIGHT)
-        {
-            obj->velocity.y += controls::gravity * dt;
-        }
-        else if (height > 0)
-        {
-            float falloff = height / GRAVITY_FALLOFF_HEIGHT;
-            obj->velocity.y += controls::gravity * dt * falloff * falloff;
-        }
     }
 
     // collide with other spheres
@@ -166,8 +167,41 @@ void BallSimulation::update(float dt)
         wall_collision_min(&(obj->position.z), &(obj->velocity.z), -BOUND, obj->radius);
         wall_collision_max(&(obj->position.z), &(obj->velocity.z), BOUND, obj->radius);
 
-        wall_collision_min(&(obj->position.w), &(obj->velocity.w), -BOUND, obj->radius);
-        wall_collision_max(&(obj->position.w), &(obj->velocity.w), BOUND, obj->radius);
+        if (controls::force_3d)
+        {
+            wall_collision_min(&(obj->position.w), &(obj->velocity.w), -obj->radius - 0.01f, obj->radius);
+            wall_collision_max(&(obj->position.w), &(obj->velocity.w), obj->radius + 0.01f, obj->radius);
+        }
+        else
+        {
+            wall_collision_min(&(obj->position.w), &(obj->velocity.w), -BOUND, obj->radius);
+            wall_collision_max(&(obj->position.w), &(obj->velocity.w), BOUND, obj->radius);
+        }
+    }
+
+    // gravity
+    for (int i = 0; i < objects.size(); i++)
+    {
+        BallObject *obj = objects[i];
+        float scalar = 1 - obj->contacts / 3.5f;
+        if (scalar < 0) continue;
+        float height;
+        if (controls::gravity < 0) {
+            height = obj->position.y - obj->radius + BOUND;
+        }
+        else
+        {
+            height = -obj->position.y - obj->radius + BOUND;
+        }
+        if (height > GRAVITY_FALLOFF_HEIGHT)
+        {
+            obj->velocity.y += controls::gravity * dt * scalar;
+        }
+        else if (height > 0)
+        {
+            float falloff = height / GRAVITY_FALLOFF_HEIGHT;
+            obj->velocity.y += controls::gravity * dt * falloff * falloff * scalar;
+        }
     }
 
     // apply friction
@@ -190,13 +224,15 @@ std::uniform_real_distribution<> dis(0, 1);
 
 void BallSimulation::addObject()
 {
+    cout << "Objects: " << objects.size() << endl;
     if (controls::uneven_sizes)
     {
-        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 50, dis(gen) * 16 - 8, dis(gen) * 16 - 8), dis(gen) * dis(gen) * 7 + 0.5, dis(gen) * 16 + 0.5));
+        float radius = dis(gen) * dis(gen) * dis(gen) * 4 + 1;
+        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 8 + 0, dis(gen) * 16 - 8, dis(gen) * 16 - 8), radius, radius * radius * radius));
     }
     else
     {
-        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 16 - 8, dis(gen) * 16 - 8, dis(gen) * 16 - 8), 2, 8));
+        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 8 + 0, dis(gen) * 16 - 8, dis(gen) * 16 - 8), 2, 8));
     }
 }
 

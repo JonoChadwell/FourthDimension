@@ -596,7 +596,7 @@ namespace HyperShapes {
         HyperShapes::five_cell = new Simplex(4);
         HyperShapes::five_cell->init();
 
-        HyperShapes::hyper_sphere = new HyperSphere(HYPERSPHERICAL_PARAMETERIZATION, 8);
+        HyperShapes::hyper_sphere = new HyperSphere(HYPERSPHERICAL_PARAMETERIZATION, 25);
         HyperShapes::hyper_sphere->init();
 
         cout << "Initialized Geometry\n";

@@ -26,7 +26,7 @@
 #define PLAYER_SPEED 5
 
 #define MAX_TIME_STEP 0.03f
-#define MAX_PHYSICS_STEPS_PER_FRAME 10
+#define MAX_PHYSICS_STEPS_PER_FRAME 2
 
 using namespace glm;
 using namespace std;
@@ -73,21 +73,9 @@ static void init()
 
     sim = new BallSimulation(HyperShapes::hyper_sphere);
 
-    /*for (int x = -2; x <= 2; x++) {
-    for (int z = -2; z <= 2; z++) {
-    for (int w = -2; w <= 2; w++) {
-    sim->addObject(vec4(x, 2.0f, z, w), 1.0f, 1.0f);
-    }
-    }
-    }
-
-    sim->addObject(vec4(0, 4, 3, 0), 2.0f, 4.0f);
-    sim->addObject(vec4(1, 5, 0, 0), 3.0f, 9.0f);*/
-
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 3; i++) {
         sim->addObject();
     }
-
 }
 
 static vec3 forwards()
@@ -124,7 +112,10 @@ static void update()
                 break;
             }
         }
-        sim->update(delta);
+        if (steps < MAX_PHYSICS_STEPS_PER_FRAME)
+        {
+            sim->update(delta);
+        }
     }
 }
 
@@ -200,7 +191,7 @@ static void render4d(Program *prog, float aspect)
 
     // 'Normal'
     Q->rotate4d(controls::r1, 0, 1);
-    Q->rotate4d(controls::r2, 1, 2);
+    Q->rotate4d(controls::r2, 0, 2);
     Q->rotate4d(controls::r3, 0, 3);
     Q->rotate4d(controls::r4, 1, 3);
     Q->rotate4d(controls::r5, 2, 3);

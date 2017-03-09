@@ -12,6 +12,7 @@ public:
     float mass;
     int rot1;
     int rot2;
+    int contacts;
     glm::vec4 position;
     glm::vec4 velocity;
 };

@@ -20,6 +20,8 @@ namespace controls {
     bool strange_color = false;
     float slice_offset;
     bool uneven_sizes = false;
+    bool force_3d = false;
+    bool clear = false;
 
     float r1;
     float r2;
@@ -109,11 +111,11 @@ namespace controls {
         }
         if (key == GLFW_KEY_R && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
-            slice_offset += 0.1;
+            slice_offset += 0.05;
         }
         if (key == GLFW_KEY_F && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
-            slice_offset -= 0.1;
+            slice_offset -= 0.05;
         }
         if (key == GLFW_KEY_V && action == GLFW_PRESS)
         {
@@ -207,9 +209,17 @@ namespace controls {
         {
             strange_color = !strange_color;
         }
+        if (key == GLFW_KEY_9 && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            force_3d = !force_3d;
+        }
         if (key == GLFW_KEY_0 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             uneven_sizes = !uneven_sizes;
+        }
+        if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            clear = true;
         }
     }
 
