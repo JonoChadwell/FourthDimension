@@ -93,7 +93,7 @@ HyperShape::HyperShape(int renderMode) :
     posBufID(NULL),
     sideBufID(NULL),
     vaoID(0),
-    renderMode(renderMode)
+    defaultRenderMode(renderMode)
 {
 }
 
@@ -143,8 +143,6 @@ void HyperShape::draw(Program *prog)
 {
     int h_pos, h_side;
     h_pos = h_side = -1;
-
-    glUniform1i(prog->getUniform("renderMode"), renderMode);
 
     glBindVertexArray(vaoID);
     // Bind position buffer

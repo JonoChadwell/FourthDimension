@@ -1,4 +1,5 @@
 #include "Program.h"
+#include "RenderModes.h"
 
 #include <iostream>
 #include <cassert>
@@ -11,7 +12,8 @@ Program::Program() :
 	vShaderName(""),
 	fShaderName(""),
 	pid(0),
-	verbose(true)
+	verbose(true),
+    mode(RENDER_OTHER)
 {
 	
 }
@@ -25,6 +27,11 @@ void Program::setShaderNames(const string &v, const string &f)
 {
 	vShaderName = v;
 	fShaderName = f;
+}
+
+void Program::setRenderMode(RENDER_MODE new_mode)
+{
+    mode = new_mode;
 }
 
 bool Program::init()

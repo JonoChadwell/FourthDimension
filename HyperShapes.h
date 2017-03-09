@@ -5,10 +5,7 @@
 #include <memory>
 
 #include "Shape.h"
-
-#define RENDER_TRIS_WIREFRAME 1
-#define RENDER_QUADS_WIREFRAME 2
-#define RENDER_QUADS_STRANGE_COLORED 3
+#include "RenderModes.h"
 
 #define HYPERSPHERICAL_PARAMETERIZATION 1
 #define HOPF_PARAMETERIZATION 2
@@ -22,7 +19,7 @@ public:
     virtual ~HyperShape();
     void init();
     void draw(Program *prog);
-    int renderMode;
+    int defaultRenderMode;
 
 protected:
     virtual void load_geometry() = 0;

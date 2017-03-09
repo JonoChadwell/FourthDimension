@@ -18,6 +18,9 @@ namespace controls {
     extern bool spawn;
     extern bool slice;
     extern bool paused;
+    extern bool strange_color;
+    extern float slice_offset;
+    extern bool uneven_sizes;
     
     extern float r1;
     extern float r2;

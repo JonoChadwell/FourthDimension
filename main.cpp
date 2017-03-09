@@ -4,6 +4,7 @@
 #include "Program.h"
 #include "MatrixStack.h"
 #include "Controls.h"
+#include "RenderModes.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -36,7 +37,7 @@ int window_width = 800;
 int window_height = 600;
 
 BallSimulation *sim;
-Program* prog;
+
 // Program* point_prog;
 
 vec3 eye = vec3(0, 5, -10);
@@ -68,19 +69,16 @@ static void init()
 
     HyperShapes::initialize();
 
-    prog = new Program();
-    prog->setVerbose(true);
-    prog->setShaderNames("geom_vertex_shader.glsl", "geom_fragment_shader.glsl");
-    prog->init();
+    rm::init();
 
     sim = new BallSimulation(HyperShapes::hyper_sphere);
 
     /*for (int x = -2; x <= 2; x++) {
-        for (int z = -2; z <= 2; z++) {
-            for (int w = -2; w <= 2; w++) {
-                sim->addObject(vec4(x, 2.0f, z, w), 1.0f, 1.0f);
-            }
-        }
+    for (int z = -2; z <= 2; z++) {
+    for (int w = -2; w <= 2; w++) {
+    sim->addObject(vec4(x, 2.0f, z, w), 1.0f, 1.0f);
+    }
+    }
     }
 
     sim->addObject(vec4(0, 4, 3, 0), 2.0f, 4.0f);
@@ -90,16 +88,6 @@ static void init()
         sim->addObject();
     }
 
-    prog->addUniform("P");
-    prog->addUniform("V");
-    prog->addUniform("M");
-    prog->addUniform("Q");
-    prog->addUniform("R");
-    prog->addUniform("objPos");
-    prog->addUniform("renderMode");
-    prog->addUniform("sliceWidth");
-    prog->addAttribute("vertPos");
-    prog->addAttribute("vertSide");
 }
 
 static vec3 forwards()
@@ -140,8 +128,9 @@ static void update()
     }
 }
 
-static void render4dScene()
+static void render4dScene(Program *prog)
 {
+    glUniform1f(prog->getUniform("sliceOffset"), controls::slice_offset);
     if (controls::slice)
     {
         glUniform1f(prog->getUniform("sliceWidth"), 0.3f);
@@ -162,25 +151,20 @@ static void render4dScene()
 
     glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
     glUniform4f(prog->getUniform("objPos"), 0, 0, 0, 0);
-    glUniform1f(prog->getUniform("sliceWidth"), 20.0f);
+    glUniform1f(prog->getUniform("sliceWidth"), 1000.0f);
 
-    HyperShapes::hyper_cube->draw(prog);
+    if (prog->mode == HyperShapes::hyper_cube->defaultRenderMode)
+    {
+        HyperShapes::hyper_cube->draw(prog);
+    }
 
     R->popMatrix();
 
     delete R;
 }
 
-static void render()
+static void render4d(Program *prog, float aspect)
 {
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-    glViewport(0, 0, width, height);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    float aspect = (float)width / (float)height;
-
     prog->bind();
 
     MatrixStack *P = new MatrixStack();
@@ -196,7 +180,7 @@ static void render()
 
     V->pushMatrix();
     V->loadIdentity();
-    
+
     V->lookAt(eye, eye + forwards(), vec3(0, 1, 0));
 
     glUniformMatrix4fv(prog->getUniform("V"), 1, GL_FALSE, value_ptr(V->topMatrix()));
@@ -233,9 +217,9 @@ static void render()
     // Sets the viewable "depth" into the 4d result component of the model transforms
     // (the "Front" and "Back" planes of the 4d->3d camera's projected hypervolume
     //glUniform1f(prog->getUniform("sliceWidth"), 0.2f);
-    
+
     // Renders the 4d geometry through the projection cameras
-    render4dScene();
+    render4dScene(prog);
 
     Q->popMatrix();
     M->popMatrix();
@@ -245,6 +229,21 @@ static void render()
     delete V;
     delete M;
     delete Q;
+}
+
+static void render()
+{
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    glViewport(0, 0, width, height);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    float aspect = (float)width / (float)height;
+
+    render4d(rm::getProgram(RENDER_TRIS_WIREFRAME), aspect);
+    render4d(rm::getProgram(RENDER_QUADS_WIREFRAME), aspect);
+    render4d(rm::getProgram(RENDER_STRANGE_COLORED), aspect);
 }
 
 int main(int argc, char **argv)

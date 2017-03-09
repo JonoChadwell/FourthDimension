@@ -2,6 +2,7 @@
 #ifndef __Program__
 #define __Program__
 
+#include "RenderModes.h"
 #include <map>
 #include <string>
 
@@ -12,11 +13,14 @@ class Program
 public:
 	Program();
 	virtual ~Program();
+
+    RENDER_MODE mode;
 	
 	void setVerbose(bool v) { verbose = v; }
 	bool isVerbose() const { return verbose; }
 	
 	void setShaderNames(const std::string &v, const std::string &f);
+    void setRenderMode(RENDER_MODE new_mode);
 	virtual bool init();
 	virtual void bind();
 	virtual void unbind();

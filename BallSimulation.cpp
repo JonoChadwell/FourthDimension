@@ -190,8 +190,14 @@ std::uniform_real_distribution<> dis(0, 1);
 
 void BallSimulation::addObject()
 {
-    //objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 50, dis(gen) * 16 - 8, dis(gen) * 16 - 8), dis(gen) * 5 + 0.1, dis(gen) * 16 + 2));
-    objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 16 - 8, dis(gen) * 16 - 8, dis(gen) * 16 - 8), 2, dis(gen) * 16 + 2));
+    if (controls::uneven_sizes)
+    {
+        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 50, dis(gen) * 16 - 8, dis(gen) * 16 - 8), dis(gen) * dis(gen) * 7 + 0.5, dis(gen) * 16 + 0.5));
+    }
+    else
+    {
+        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 16 - 8, dis(gen) * 16 - 8, dis(gen) * 16 - 8), 2, 8));
+    }
 }
 
 void BallSimulation::addObject(vec4 position, float radius, float mass)
@@ -201,6 +207,8 @@ void BallSimulation::addObject(vec4 position, float radius, float mass)
 
 void BallSimulation::render(Program *prog)
 {
+    if (controls::strange_color && prog->mode != RENDER_STRANGE_COLORED) return;
+    if (!controls::strange_color && prog->mode != sphere->defaultRenderMode) return;
 
     MatrixStack *R = new MatrixStack();
 

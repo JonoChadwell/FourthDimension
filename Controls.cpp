@@ -17,6 +17,9 @@ namespace controls {
     bool spawn = false;
     bool slice = false;
     bool paused = false;
+    bool strange_color = false;
+    float slice_offset;
+    bool uneven_sizes = false;
 
     float r1;
     float r2;
@@ -104,6 +107,18 @@ namespace controls {
                 vel.y = 0;
             }
         }
+        if (key == GLFW_KEY_R && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            slice_offset += 0.1;
+        }
+        if (key == GLFW_KEY_F && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            slice_offset -= 0.1;
+        }
+        if (key == GLFW_KEY_V && action == GLFW_PRESS)
+        {
+            slice_offset = 0;
+        }
         if (key == GLFW_KEY_T && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             r1 += ROT_AMT;
@@ -111,6 +126,10 @@ namespace controls {
         if (key == GLFW_KEY_G && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             r1 -= ROT_AMT;
+        }
+        if (key == GLFW_KEY_B && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r1 = 0;
         }
         if (key == GLFW_KEY_Y && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
@@ -120,6 +139,10 @@ namespace controls {
         {
             r2 -= ROT_AMT;
         }
+        if (key == GLFW_KEY_N && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r2 = 0;
+        }
         if (key == GLFW_KEY_U && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             r3 += ROT_AMT;
@@ -127,6 +150,10 @@ namespace controls {
         if (key == GLFW_KEY_J && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             r3 -= ROT_AMT;
+        }
+        if (key == GLFW_KEY_M && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r3 = 0;
         }
         if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
@@ -136,6 +163,10 @@ namespace controls {
         {
             r4 -= ROT_AMT;
         }
+        if (key == GLFW_KEY_COMMA && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r4 = 0;
+        }
         if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             r5 += ROT_AMT;
@@ -143,6 +174,18 @@ namespace controls {
         if (key == GLFW_KEY_L && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             r5 -= ROT_AMT;
+        }
+        if (key == GLFW_KEY_PERIOD && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r5 = 0;
+        }
+        if (key == GLFW_KEY_SLASH && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            r1 = 0;
+            r2 = 0;
+            r3 = 0;
+            r4 = 0;
+            r5 = 0;
         }
         if (key == GLFW_KEY_1 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
@@ -156,9 +199,17 @@ namespace controls {
         {
             slice = !slice;
         }
-        if (key == GLFW_KEY_4 && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        if (key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             paused = !paused;
+        }
+        if (key == GLFW_KEY_4 && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            strange_color = !strange_color;
+        }
+        if (key == GLFW_KEY_0 && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            uneven_sizes = !uneven_sizes;
         }
     }
 
