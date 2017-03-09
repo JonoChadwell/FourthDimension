@@ -5,6 +5,7 @@
 #include "MatrixStack.h"
 #include "Controls.h"
 
+#include <cmath>
 #include <random>
 #include <iostream>
 #include <glm/vec4.hpp>
@@ -224,7 +225,7 @@ void BallSimulation::addObject(vec4 position, float radius, float mass)
     objects.push_back(new BallObject(position, radius, mass));
 }
 
-void BallSimulation::render(Program *prog)
+void BallSimulation::render(Program *prog, mat4 hypercamera)
 {
     if (controls::strange_color && prog->mode != RENDER_STRANGE_COLORED) return;
     if (!controls::strange_color && prog->mode != sphere->defaultRenderMode) return;
@@ -237,6 +238,19 @@ void BallSimulation::render(Program *prog)
     for (int i = 0; i < objects.size(); i++)
     {
         BallObject *obj = objects[i];
+
+        // just a little vfc
+        if (controls::slice)
+        {
+            float w = (hypercamera * obj->position).w;
+
+            float width = 0.13f + obj->radius + 0.01f;
+            if (abs(w + controls::slice_offset) > width)
+            {
+                continue;
+            }
+        }
+
         R->pushMatrix();
 
         R->rotate4d(glfwGetTime() * obj->rotdir / 10.0, obj->rot1, obj->rot2);

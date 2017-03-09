@@ -119,7 +119,7 @@ static void update()
     }
 }
 
-static void render4dScene(Program *prog)
+static void render4dScene(Program *prog, mat4 hypercamera)
 {
     glUniform1f(prog->getUniform("sliceOffset"), controls::slice_offset);
     if (controls::slice)
@@ -131,7 +131,7 @@ static void render4dScene(Program *prog)
         glUniform1f(prog->getUniform("sliceWidth"), 20.0f);
     }
 
-    sim->render(prog);
+    sim->render(prog, hypercamera);
 
     if (prog->mode == HyperShapes::hyper_cube->defaultRenderMode)
     {
@@ -229,7 +229,7 @@ static void render4d(Program *prog, float aspect)
     //glUniform1f(prog->getUniform("sliceWidth"), 0.2f);
 
     // Renders the 4d geometry through the projection cameras
-    render4dScene(prog);
+    render4dScene(prog, Q->topMatrix());
 
     Q->popMatrix();
     M->popMatrix();

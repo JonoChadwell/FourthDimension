@@ -28,8 +28,9 @@ void main()
     }
     else
     {
-        vec4 worldPos = M * vec4(projectedPos.xyz / (wPart + 20) * 20, 1);
-        gl_Position = P * V * M * vec4(projectedPos.xyz / (wPart + 20) * 20, 1);
+        float scalar = (wPart / 20) * 0.4 + 1.0;
+        vec4 worldPos = M * vec4(projectedPos.xyz * scalar, 1);
+        gl_Position = P * V * M * vec4(projectedPos.xyz * scalar, 1);
     }
     
     fragWorld = worldPos.xyz;

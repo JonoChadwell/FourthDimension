@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 
 class HyperShape;
 class BallObject;
@@ -16,7 +17,7 @@ public:
     void update(float dt);
     void addObject();
     void addObject(glm::vec4 position, float radius, float mass);
-    void render(Program *prog);
+    void render(Program *prog, glm::mat4 hypercamera);
 
 private:
     HyperShape *sphere;
