@@ -8,6 +8,7 @@
 #include "RenderModes.h"
 
 #define HYPERSPHERICAL_PARAMETERIZATION 1
+// Fix parameterization before use
 #define HOPF_PARAMETERIZATION 2
 
 class Program;

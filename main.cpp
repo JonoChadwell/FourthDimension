@@ -124,7 +124,7 @@ static void render4dScene(Program *prog)
     glUniform1f(prog->getUniform("sliceOffset"), controls::slice_offset);
     if (controls::slice)
     {
-        glUniform1f(prog->getUniform("sliceWidth"), 0.3f);
+        glUniform1f(prog->getUniform("sliceWidth"), 0.13f);
     }
     else
     {

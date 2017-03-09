@@ -256,7 +256,7 @@ void BallSimulation::render(Program *prog)
         BallObject *obj = objects[i];
         R->pushMatrix();
 
-        R->rotate4d(glfwGetTime() / 10.0, obj->rot1, obj->rot2);
+        R->rotate4d(glfwGetTime() * obj->rotdir / 10.0, obj->rot1, obj->rot2);
         R->scale4d(obj->radius);
 
         glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
