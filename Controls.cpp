@@ -29,6 +29,7 @@ namespace controls {
     bool clear = false;
     bool bound_cube = false;
     bool project_strange = false;
+    bool project_gravity = false;
 
     float r1;
     float r2;
@@ -250,6 +251,10 @@ namespace controls {
         }
         if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
+            project_gravity = !project_gravity;
+        }
+        if (project_gravity)
+        {
             MatrixStack *Q = new MatrixStack();
             Q->pushMatrix();
             Q->loadIdentity();
@@ -260,6 +265,7 @@ namespace controls {
             Q->rotate4d(-controls::r1, 0, 1);
             mat4 top = Q->topMatrix();
             gravity = top * vec4(0, 1, 0, 0) * -9.8f;
+
         }
         if (key == GLFW_KEY_C && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
