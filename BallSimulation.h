@@ -21,5 +21,7 @@ public:
 private:
     HyperShape *sphere;
     std::vector<BallObject*> objects;
+
+    void applyGravity(float dt);
 };
 

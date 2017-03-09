@@ -179,30 +179,7 @@ void BallSimulation::update(float dt)
         }
     }
 
-    // gravity
-    for (int i = 0; i < objects.size(); i++)
-    {
-        BallObject *obj = objects[i];
-        float scalar = 1 - obj->contacts / 3.5f;
-        if (scalar < 0) continue;
-        float height;
-        if (controls::gravity < 0) {
-            height = obj->position.y - obj->radius + BOUND;
-        }
-        else
-        {
-            height = -obj->position.y - obj->radius + BOUND;
-        }
-        if (height > GRAVITY_FALLOFF_HEIGHT)
-        {
-            obj->velocity.y += controls::gravity * dt * scalar;
-        }
-        else if (height > 0)
-        {
-            float falloff = height / GRAVITY_FALLOFF_HEIGHT;
-            obj->velocity.y += controls::gravity * dt * falloff * falloff * scalar;
-        }
-    }
+    applyGravity(dt);
 
     // apply friction
     for (int i = 0; i < objects.size(); i++)
@@ -210,12 +187,6 @@ void BallSimulation::update(float dt)
         BallObject *obj = objects[i];
         obj->velocity *= 1 - (FRICTION * dt);
     }
-
-    //for (int i = 0; i < objects.size(); i++)
-    //{
-    //    BallObject *obj = objects[i];
-    //    cout << "Position (" << i << "): " << obj->position.x << ", " << obj->position.y << ", " << obj->position.z << ", " << obj->position.w << endl;
-    //}
 }
 
 std::random_device rd;
@@ -272,3 +243,31 @@ void BallSimulation::render(Program *prog)
 
     delete R;
 }
+
+void BallSimulation::applyGravity(float dt)
+{
+    for (int i = 0; i < objects.size(); i++)
+    {
+        BallObject *obj = objects[i];
+        float scalar = 1 - obj->contacts / 5.5f;
+        if (dot(vec4(1, 0, 1, 1), controls::gravity) == 0)
+        {
+            float height;
+            if (controls::gravity.y < 0) {
+                height = obj->position.y - obj->radius + BOUND;
+            }
+            else
+            {
+                height = -obj->position.y - obj->radius + BOUND;
+            }
+            if (height < GRAVITY_FALLOFF_HEIGHT)
+            {
+                float falloff = height / GRAVITY_FALLOFF_HEIGHT;
+                scalar = scalar * falloff * falloff;
+            }
+        }
+        if (scalar < 0) continue;
+        obj->velocity += controls::gravity * dt * scalar;
+    }
+}
+

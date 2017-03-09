@@ -1,10 +1,15 @@
 #include "Controls.h"
+#include "MatrixStack.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #define ROT_AMT M_PI/200
 
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 #include <GLFW/glfw3.h>
+
+using namespace glm;
 
 namespace controls {
     glm::vec3 vel = glm::vec3(0, 0, 0);
@@ -29,7 +34,7 @@ namespace controls {
     float r4;
     float r5;
 
-    float gravity = -9.8f;
+    glm::vec4 gravity = glm::vec4(0, -9.8f, 0, 0);
 
     void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
     {
@@ -220,6 +225,23 @@ namespace controls {
         if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             clear = true;
+        }
+        if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            MatrixStack *Q = new MatrixStack();
+            Q->pushMatrix();
+            Q->loadIdentity();
+            Q->rotate4d(-controls::r5, 2, 3);
+            Q->rotate4d(-controls::r4, 1, 3);
+            Q->rotate4d(-controls::r3, 0, 3);
+            Q->rotate4d(-controls::r2, 0, 2);
+            Q->rotate4d(-controls::r1, 0, 1);
+            mat4 top = Q->topMatrix();
+            gravity = top * vec4(0, 1, 0, 0) * -9.8f;
+        }
+        if (key == GLFW_KEY_C && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            gravity = vec4(0, -9.8f, 0, 0);
         }
     }
 

@@ -1,5 +1,6 @@
 #include "BallObject.h"
 #include <math.h>
+#include <cstdlib>
 
 BallObject::BallObject(glm::vec4 position, float radius, float mass) :
     position(position),

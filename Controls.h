@@ -5,6 +5,7 @@
 #define ROT_AMT M_PI/200
 
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <GLFW/glfw3.h>
 
 namespace controls {
@@ -30,7 +31,7 @@ namespace controls {
     extern float r4;
     extern float r5;
 
-    extern float gravity;
+    extern glm::vec4 gravity;
 
     void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
     void mouse_callback(GLFWwindow *window, int button, int action, int mods);
