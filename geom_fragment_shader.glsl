@@ -1,6 +1,7 @@
 #version 330 core
 
 uniform int renderMode;
+uniform float sliceWidth;
 
 in float wPart;
 in vec3 fragWorld;
@@ -35,18 +36,18 @@ void main()
         en = edginessQuad(fragSide);
     }
     
-    if (wPart > 0.4 || wPart < -0.4) 
+    if (wPart > sliceWidth || wPart < -sliceWidth) 
     {
         discard;
     }
     
-    if (en < 0.0)
+    if (en < 0.85)
     {
         discard;
     }
     else
     {
-        float c = en; //1 - (1 - en) * 3;
+        float c = 1 - (1 - en) * 3;
         color = vec4(c, c, c, 1.0f);
     }
 }

@@ -50,16 +50,36 @@ namespace {
         return rtn;
     }
 
-    void push_hs_point(vector<float> *pos, int r1, int r2, int r3, int divisions)
+    void push_hs_point(vector<float> *pos, int r1, int r2, int r3, int divisions, int mode)
     {
-        float psi = ((float)r1 / (float)divisions) * M_PI;
-        float theta = ((float)r2 / (float)divisions) * M_PI;
-        float phi = ((float)r3 / (float)divisions) * 2 * M_PI;
+        float x, y, z, w;
 
-        float x = cos(psi);
-        float y = sin(psi) * cos(theta);
-        float z = sin(psi) * sin(theta) * cos(phi);
-        float w = sin(psi) * sin(theta) * sin(phi);
+        if (mode == HYPERSPHERICAL_PARAMETERIZATION) {
+            float psi = ((float)r1 / (float)divisions) * M_PI;
+            float theta = ((float)r2 / (float)divisions) * M_PI;
+            float phi = ((float)r3 / (float)divisions) * 2 * M_PI;
+
+            x = cos(psi);
+            y = sin(psi) * cos(theta);
+            z = sin(psi) * sin(theta) * cos(phi);
+            w = sin(psi) * sin(theta) * sin(phi);
+        }
+        else if (mode == HOPF_PARAMETERIZATION)
+        {
+            float e1 = ((float)r1 / (float)divisions) * 2 * M_PI;
+            float e2 = ((float)r2 / (float)divisions) * 2 * M_PI;
+            float n = ((float)r3 / (float)divisions) * M_PI / 2;
+
+            x = sin(e1) * sin(n);
+            y = cos(e1) * sin(n);
+            z = sin(e2) * cos(n);
+            w = cos(e2) * cos(n);
+        }
+        else
+        {
+            cerr << "Invalid hypersphere parameterization\n";
+            exit(EXIT_FAILURE);
+        }
 
         pos->push_back(x);
         pos->push_back(y);
@@ -156,8 +176,10 @@ void HyperShape::draw(Program *prog)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-HyperSphere::HyperSphere() :
-    HyperShape(RENDER_QUADS_WIREFRAME)
+HyperSphere::HyperSphere(int parameterization, int divisions) :
+    HyperShape(RENDER_QUADS_WIREFRAME),
+    parameterization(parameterization),
+    divisions(divisions)
 {
 }
 
@@ -173,41 +195,40 @@ void HyperSphere::load_geometry()
     sideBuf = {};
     eleBuf = {};
 
-    int divisions = 6;
     int verticies = 0;
 
     for (int r1 = 0; r1 < divisions; r1++) {
         for (int r2 = 0; r2 < divisions; r2++) {
             for (int r3 = 0; r3 < divisions; r3++) {
                 // XY quads
-                push_hs_point(&posBuf, r1, r2, r3, divisions);
-                push_hs_point(&posBuf, r1, r2 + 1, r3, divisions);
-                push_hs_point(&posBuf, r1 + 1, r2, r3, divisions);
-                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3, divisions);
-                push_hs_point(&posBuf, r1, r2, r3 + 1, divisions);
-                push_hs_point(&posBuf, r1, r2 + 1, r3 + 1, divisions);
-                push_hs_point(&posBuf, r1 + 1, r2, r3 + 1, divisions);
-                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3 + 1, divisions);
+                push_hs_point(&posBuf, r1, r2, r3, divisions, parameterization);
+                push_hs_point(&posBuf, r1, r2 + 1, r3, divisions, parameterization);
+                push_hs_point(&posBuf, r1 + 1, r2, r3, divisions, parameterization);
+                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3, divisions, parameterization);
+                push_hs_point(&posBuf, r1, r2, r3 + 1, divisions, parameterization);
+                push_hs_point(&posBuf, r1, r2 + 1, r3 + 1, divisions, parameterization);
+                push_hs_point(&posBuf, r1 + 1, r2, r3 + 1, divisions, parameterization);
+                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3 + 1, divisions, parameterization);
 
                 // XZ quads
-                push_hs_point(&posBuf, r1, r2, r3, divisions);
-                push_hs_point(&posBuf, r1, r2, r3 + 1, divisions);
-                push_hs_point(&posBuf, r1 + 1, r2, r3, divisions);
-                push_hs_point(&posBuf, r1 + 1, r2, r3 + 1, divisions);
-                push_hs_point(&posBuf, r1, r2 + 1, r3, divisions);
-                push_hs_point(&posBuf, r1, r2 + 1, r3 + 1, divisions);
-                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3, divisions);
-                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3 + 1, divisions);
+                push_hs_point(&posBuf, r1, r2, r3, divisions, parameterization);
+                push_hs_point(&posBuf, r1, r2, r3 + 1, divisions, parameterization);
+                push_hs_point(&posBuf, r1 + 1, r2, r3, divisions, parameterization);
+                push_hs_point(&posBuf, r1 + 1, r2, r3 + 1, divisions, parameterization);
+                push_hs_point(&posBuf, r1, r2 + 1, r3, divisions, parameterization);
+                push_hs_point(&posBuf, r1, r2 + 1, r3 + 1, divisions, parameterization);
+                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3, divisions, parameterization);
+                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3 + 1, divisions, parameterization);
 
                 // YZ quads
-                push_hs_point(&posBuf, r1, r2, r3, divisions);
-                push_hs_point(&posBuf, r1, r2 + 1, r3, divisions);
-                push_hs_point(&posBuf, r1, r2, r3 + 1, divisions);
-                push_hs_point(&posBuf, r1, r2 + 1, r3 + 1, divisions);
-                push_hs_point(&posBuf, r1 + 1, r2, r3, divisions);
-                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3, divisions);
-                push_hs_point(&posBuf, r1 + 1, r2, r3 + 1, divisions);
-                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3 + 1, divisions);
+                push_hs_point(&posBuf, r1, r2, r3, divisions, parameterization);
+                push_hs_point(&posBuf, r1, r2 + 1, r3, divisions, parameterization);
+                push_hs_point(&posBuf, r1, r2, r3 + 1, divisions, parameterization);
+                push_hs_point(&posBuf, r1, r2 + 1, r3 + 1, divisions, parameterization);
+                push_hs_point(&posBuf, r1 + 1, r2, r3, divisions, parameterization);
+                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3, divisions, parameterization);
+                push_hs_point(&posBuf, r1 + 1, r2, r3 + 1, divisions, parameterization);
+                push_hs_point(&posBuf, r1 + 1, r2 + 1, r3 + 1, divisions, parameterization);
             }
         }
     }
@@ -577,7 +598,7 @@ namespace HyperShapes {
         HyperShapes::five_cell = new Simplex(4);
         HyperShapes::five_cell->init();
 
-        HyperShapes::hyper_sphere = new HyperSphere();
+        HyperShapes::hyper_sphere = new HyperSphere(HYPERSPHERICAL_PARAMETERIZATION, 10);
         HyperShapes::hyper_sphere->init();
 
         cout << "Initialized Geometry\n";

@@ -1,4 +1,4 @@
-
+#include "BallSimulation.h"
 #include "Shape.h"
 #include "HyperShapes.h"
 #include "Program.h"
@@ -9,6 +9,7 @@
 #include <math.h>
 #include <cmath>
 #include <iostream>
+#include <random>
 
 // OpenGL
 #include <GL/glew.h>
@@ -24,10 +25,8 @@
 
 #define PLAYER_SPEED 5
 
-#define X_VOLUME 0
-#define Y_VOLUME 1
-#define Z_VOLUME 2
-#define W_VOLUME 3
+#define MAX_TIME_STEP 0.02f
+#define MAX_PHYSICS_STEPS_PER_FRAME 10
 
 using namespace glm;
 using namespace std;
@@ -37,11 +36,11 @@ GLFWwindow *window;
 int window_width = 800;
 int window_height = 600;
 
-
+BallSimulation *sim;
 Program* prog;
 // Program* point_prog;
 
-vec3 eye = vec3(0, 0, -10);
+vec3 eye = vec3(0, 5, -10);
 
 float lastTime = 0;
 
@@ -66,7 +65,6 @@ static void init()
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
     glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     HyperShapes::initialize();
@@ -76,6 +74,27 @@ static void init()
     prog->setShaderNames("geom_vertex_shader.glsl", "geom_fragment_shader.glsl");
     prog->init();
 
+    sim = new BallSimulation(HyperShapes::hyper_sphere);
+
+    /*for (int x = -2; x <= 2; x++) {
+        for (int z = -2; z <= 2; z++) {
+            for (int w = -2; w <= 2; w++) {
+                sim->addObject(vec4(x, 2.0f, z, w), 1.0f, 1.0f);
+            }
+        }
+    }
+
+    sim->addObject(vec4(0, 4, 3, 0), 2.0f, 4.0f);
+    sim->addObject(vec4(1, 5, 0, 0), 3.0f, 9.0f);*/
+
+    random_device rd;  //Will be used to obtain a seed for the random number engine
+    mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+    uniform_real_distribution<> dis(0, 1);
+
+    for (int i = 0; i < 50; i++) {
+        sim->addObject(vec4(dis(gen) * 16 - 8, dis(gen) * 30, dis(gen) * 16 - 8, dis(gen) * 16 - 8), dis(gen) * 2 + 2, dis(gen) * 16 + 2);
+    }
+
     prog->addUniform("P");
     prog->addUniform("V");
     prog->addUniform("M");
@@ -83,6 +102,7 @@ static void init()
     prog->addUniform("R");
     prog->addUniform("objPos");
     prog->addUniform("renderMode");
+    prog->addUniform("sliceWidth");
     prog->addAttribute("vertPos");
     prog->addAttribute("vertSide");
 }
@@ -109,6 +129,39 @@ static void update()
     eye += x * (controls::vel.x * delta * PLAYER_SPEED);
     eye += y * (controls::vel.y * delta * PLAYER_SPEED);
     eye += z * (controls::vel.z * delta * PLAYER_SPEED);
+
+    int steps = 0;
+    while (delta > MAX_TIME_STEP)
+    {
+        sim->update(MAX_TIME_STEP);
+        delta -= MAX_TIME_STEP;
+        if (++steps >= MAX_PHYSICS_STEPS_PER_FRAME)
+        {
+            break;
+        }
+    }
+    sim->update(delta);
+}
+
+static void render4dScene()
+{
+    sim->render(prog);
+
+    MatrixStack *R = new MatrixStack();
+
+    R->pushMatrix();
+    R->loadIdentity();
+
+    R->scale4d(10.0f);
+
+    glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
+    glUniform4f(prog->getUniform("objPos"), 0, 10, 0, 0);
+
+    HyperShapes::hyper_cube->draw(prog);
+
+    R->popMatrix();
+
+    delete R;
 }
 
 static void render()
@@ -119,7 +172,6 @@ static void render()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    float t = glfwGetTime();
     float aspect = (float)width / (float)height;
 
     prog->bind();
@@ -128,11 +180,10 @@ static void render()
     MatrixStack *V = new MatrixStack();
     MatrixStack *M = new MatrixStack();
     MatrixStack *Q = new MatrixStack();
-    MatrixStack *R = new MatrixStack();
 
     P->pushMatrix();
     P->loadIdentity();
-    P->perspective(PI / 3, aspect, 0.01f, 100.0f);
+    P->perspective(M_PI / 3, aspect, 0.01f, 100.0f);
 
     glUniformMatrix4fv(prog->getUniform("P"), 1, GL_FALSE, value_ptr(P->topMatrix()));
 
@@ -146,43 +197,31 @@ static void render()
     M->pushMatrix();
     M->loadIdentity();
 
+    // 4d->3d camera 3d spatial geometry result transforms
+
+
     glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(M->topMatrix()));
 
     Q->pushMatrix();
     Q->loadIdentity();
 
+    // 4d->3d camera projection transforms
+    Q->rotate4d(controls::r1, 1, 3);
+    Q->rotate4d(controls::r2, 0, 2);
+    
+    //Q->rotate4d(controls::r3, 3, 1);
+    Q->rotate4d(controls::r3, 0, 3);
+    Q->rotate4d(controls::r4, 2, 3);
     
 
     glUniformMatrix4fv(prog->getUniform("Q"), 1, GL_FALSE, value_ptr(Q->topMatrix()));
+
+    // Sets the viewable "depth" into the 4d result component of the model transforms
+    // (the "Front" and "Back" planes of the 4d->3d camera's projected hypervolume
+    glUniform1f(prog->getUniform("sliceWidth"), 1000.0f);
     
-    //for (int i = 0; i < 3; i++) {
-        //for (int j = 0; j < 3; j++) {
-            R->pushMatrix();
-            R->loadIdentity();
-            
-            //R->rotate4d(i * PI / 10, 0, 1);
-            //R->rotate4d(j * PI / 10, 1, 2);
-            
-            R->rotate4d(controls::r1, 0, 1);
-            R->rotate4d(controls::r2, 1, 2);
-            R->rotate4d(controls::r3, 0, 3);
-            R->rotate4d(controls::r4, 1, 3);
-            R->rotate4d(controls::r5, 2, 3);
-
-            R->scale4d(2.0f);
-
-            //R->rotate4d((16 * i + 4 * j + k) * PI / 40, 0, 3);
-
-            glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
-            glUniform4f(prog->getUniform("objPos"), 8.0f * 0, 8.0f * 0, 0, 8.0f * 0);
-            HyperShapes::hyper_cube->draw(prog);
-            
-            // square->draw(prog);
-            //R->popMatrix();
-            //R->popMatrix();
-            R->popMatrix();
-        //}
-    //}
+    // Renders the 4d geometry through the projection cameras
+    render4dScene();
 
     Q->popMatrix();
     M->popMatrix();
@@ -192,7 +231,6 @@ static void render()
     delete V;
     delete M;
     delete Q;
-    delete R;
 }
 
 int main(int argc, char **argv)
@@ -210,7 +248,7 @@ int main(int argc, char **argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 
     // Create a windowed mode window and its OpenGL context.
-    window = glfwCreateWindow(window_width, window_height, "Forth Dimension", NULL, NULL);
+    window = glfwCreateWindow(window_width, window_height, "Fourth Dimension", NULL, NULL);
     if (!window) {
         glfwTerminate();
         cerr << "Couldn't create opengl window" << endl;

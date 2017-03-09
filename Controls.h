@@ -1,7 +1,8 @@
 #pragma once
 
-#define PI 3.1416
-#define ROT_AMT PI/200
+#define _USE_MATH_DEFINES
+#include <math.h>
+#define ROT_AMT M_PI/200
 
 #include <glm/vec3.hpp>
 #include <GLFW/glfw3.h>
@@ -12,8 +13,8 @@ namespace controls {
     double lastX;
     double lastY;
     bool mouse_pos_initialized = false;
-    float theta;
-    float phi;
+    float theta = 0;
+    float phi = -M_PI / 6;
     
     float r1;
     float r2;
@@ -132,7 +133,7 @@ namespace controls {
         }
         if (key == GLFW_KEY_O && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
-            r5 -= ROT_AMT;
+            r5 += ROT_AMT;
         }
         if (key == GLFW_KEY_L && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
@@ -158,11 +159,11 @@ namespace controls {
                 theta -= (x - lastX) / 1000.0;
                 phi -= (y - lastY) / 1000.0;
             }
-            if (phi < -PI / 2 + 0.1) {
-                phi = -PI / 2 + 0.1;
+            if (phi < -M_PI / 2 + 0.1) {
+                phi = -M_PI / 2 + 0.1;
             }
-            if (phi > PI / 2 - 0.1) {
-                phi = PI / 2 - 0.1;
+            if (phi > M_PI / 2 - 0.1) {
+                phi = M_PI / 2 - 0.1;
             }
             lastX = x;
             lastY = y;

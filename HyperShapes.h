@@ -9,6 +9,9 @@
 #define RENDER_TRIS_WIREFRAME 1
 #define RENDER_QUADS_WIREFRAME 2
 
+#define HYPERSPHERICAL_PARAMETERIZATION 1
+#define HOPF_PARAMETERIZATION 2
+
 class Program;
 
 class HyperShape
@@ -37,11 +40,15 @@ private:
 class HyperSphere : public HyperShape
 {
 public:
-    HyperSphere();
+    HyperSphere(int parameterization, int divisions);
     ~HyperSphere();
 
 protected:
     void load_geometry();
+
+private:
+    int parameterization;
+    int divisions;
 };
 
 class HyperCube : public HyperShape
