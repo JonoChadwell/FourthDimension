@@ -115,10 +115,6 @@ void BallSimulation::update(float dt)
             delete obj;
         }
         objects.clear();
-        for (int i = 0; i < 3; i++)
-        {
-            addObject();
-        }
     }
 
     if (controls::spawn)
@@ -161,21 +157,37 @@ void BallSimulation::update(float dt)
         wall_collision_min(&(obj->position.y), &(obj->velocity.y), -BOUND, obj->radius);
         wall_collision_max(&(obj->position.y), &(obj->velocity.y), BOUND, obj->radius);
 
-        wall_collision_min(&(obj->position.x), &(obj->velocity.x), -BOUND, obj->radius);
-        wall_collision_max(&(obj->position.x), &(obj->velocity.x), BOUND, obj->radius);
-
-        wall_collision_min(&(obj->position.z), &(obj->velocity.z), -BOUND, obj->radius);
-        wall_collision_max(&(obj->position.z), &(obj->velocity.z), BOUND, obj->radius);
-
-        if (controls::force_3d)
+        if (controls::physicsDimensions > 1)
         {
-            wall_collision_min(&(obj->position.w), &(obj->velocity.w), -obj->radius - 0.01f, obj->radius);
-            wall_collision_max(&(obj->position.w), &(obj->velocity.w), obj->radius + 0.01f, obj->radius);
+            wall_collision_min(&(obj->position.x), &(obj->velocity.x), -BOUND, obj->radius);
+            wall_collision_max(&(obj->position.x), &(obj->velocity.x), BOUND, obj->radius);
         }
         else
         {
+            wall_collision_min(&(obj->position.x), &(obj->velocity.x), -obj->radius - 0.005f, obj->radius);
+            wall_collision_max(&(obj->position.x), &(obj->velocity.x), obj->radius + 0.005f, obj->radius);
+        }
+
+        if (controls::physicsDimensions > 2)
+        {
+            wall_collision_min(&(obj->position.z), &(obj->velocity.z), -BOUND, obj->radius);
+            wall_collision_max(&(obj->position.z), &(obj->velocity.z), BOUND, obj->radius);
+        }
+        else
+        {
+            wall_collision_min(&(obj->position.z), &(obj->velocity.z), -obj->radius - 0.005f, obj->radius);
+            wall_collision_max(&(obj->position.z), &(obj->velocity.z), obj->radius + 0.005f, obj->radius);
+        }
+
+        if (controls::physicsDimensions > 3)
+        {
             wall_collision_min(&(obj->position.w), &(obj->velocity.w), -BOUND, obj->radius);
             wall_collision_max(&(obj->position.w), &(obj->velocity.w), BOUND, obj->radius);
+        }
+        else
+        {
+            wall_collision_min(&(obj->position.w), &(obj->velocity.w), -obj->radius - 0.005f, obj->radius);
+            wall_collision_max(&(obj->position.w), &(obj->velocity.w), obj->radius + 0.005f, obj->radius);
         }
     }
 

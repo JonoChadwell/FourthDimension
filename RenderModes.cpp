@@ -16,6 +16,7 @@ namespace rm {
         prog->addUniform("Q");
         prog->addUniform("R");
         prog->addUniform("objPos");
+        prog->addUniform("divW");
         prog->addUniform("sliceWidth");
         prog->addUniform("sliceOffset");
         prog->addAttribute("vertPos");

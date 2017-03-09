@@ -25,8 +25,10 @@ namespace controls {
     bool strange_color = false;
     float slice_offset;
     bool uneven_sizes = false;
-    bool force_3d = false;
+    int physicsDimensions = 4;
     bool clear = false;
+    bool bound_cube = false;
+    bool project_strange = false;
 
     float r1;
     float r2;
@@ -214,9 +216,29 @@ namespace controls {
         {
             strange_color = !strange_color;
         }
+        if (key == GLFW_KEY_5 && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            project_strange = !project_strange;
+        }
+        if (key == GLFW_KEY_6 && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            bound_cube = !bound_cube;
+        }
         if (key == GLFW_KEY_9 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
-            force_3d = !force_3d;
+            physicsDimensions++;
+            if (physicsDimensions > 4)
+            {
+                physicsDimensions = 4;
+            }
+        }
+        if (key == GLFW_KEY_8 && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            physicsDimensions--;
+            if (physicsDimensions < 1)
+            {
+                physicsDimensions = 1;
+            }
         }
         if (key == GLFW_KEY_0 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {

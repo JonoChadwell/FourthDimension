@@ -22,8 +22,10 @@ namespace controls {
     extern bool strange_color;
     extern float slice_offset;
     extern bool uneven_sizes;
-    extern bool force_3d;
+    extern int physicsDimensions;
     extern bool clear;
+    extern bool bound_cube;
+    extern bool project_strange;
     
     extern float r1;
     extern float r2;

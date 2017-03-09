@@ -133,30 +133,49 @@ static void render4dScene(Program *prog)
 
     sim->render(prog);
 
-    MatrixStack *R = new MatrixStack();
-
-    R->pushMatrix();
-    R->loadIdentity();
-
-    R->scale4d(10.0f);
-
-    glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
-    glUniform4f(prog->getUniform("objPos"), 0, 0, 0, 0);
-    glUniform1f(prog->getUniform("sliceWidth"), 1000.0f);
-
     if (prog->mode == HyperShapes::hyper_cube->defaultRenderMode)
     {
-        HyperShapes::hyper_cube->draw(prog);
+        MatrixStack *R = new MatrixStack();
+
+        R->pushMatrix();
+        R->loadIdentity();
+
+        R->scale4d(10.0f);
+
+        glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
+        glUniform1f(prog->getUniform("sliceWidth"), 1000.0f);
+
+        if (controls::bound_cube)
+        {
+            glUniform4f(prog->getUniform("objPos"), 0, 0, 0, -10);
+            HyperShapes::cube->draw(prog);
+            glUniform4f(prog->getUniform("objPos"), 0, 0, 0, 10);
+            HyperShapes::cube->draw(prog);
+        }
+        else
+        {
+            glUniform4f(prog->getUniform("objPos"), 0, 0, 0, 0);
+            HyperShapes::hyper_cube->draw(prog);
+        }
+
+        R->popMatrix();
+
+        delete R;
     }
-
-    R->popMatrix();
-
-    delete R;
 }
 
 static void render4d(Program *prog, float aspect)
 {
     prog->bind();
+
+    if (controls::project_strange)
+    {
+        glUniform1i(prog->getUniform("divW"), 1);
+    }
+    else
+    {
+        glUniform1i(prog->getUniform("divW"), 0);
+    }
 
     MatrixStack *P = new MatrixStack();
     MatrixStack *V = new MatrixStack();
