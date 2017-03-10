@@ -5,3 +5,5 @@ ForthDim.vcxproj ForthDim.vcxproj.filters
 ForthDim.vcxproj
 ForthDim.vcxproj.filters
 packages.config
+*.vcxproj.user
+Release/
