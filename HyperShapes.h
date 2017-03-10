@@ -101,7 +101,9 @@ namespace HyperShapes {
     extern HyperShape* triangle;
     extern HyperShape* tetrahedron;
     extern HyperShape* five_cell;
+    extern HyperShape* hyper_sphere_lq;
     extern HyperShape* hyper_sphere;
+    extern HyperShape* hyper_sphere_hq;
 
     void initialize();
 }

@@ -20,6 +20,7 @@ namespace controls {
     float theta = 0;
     float phi = -M_PI / 6;
     bool strange_color = false;
+    int sphere_quality = 0;
 
     float r1;
     float r2;
@@ -36,8 +37,8 @@ namespace controls {
     bool slice = false;
     bool paused = false;
     float slice_offset;
-    bool uneven_sizes = false;
-    int physicsDimensions = 4;
+    int size_mode = 0;
+    int physics_dimensions = 4;
     bool clear = false;
     bool bound_cube = false;
     bool project_strange = false;
@@ -230,25 +231,36 @@ namespace controls {
         {
             bound_cube = !bound_cube;
         }
+        if (key == GLFW_KEY_7 && (action == GLFW_PRESS || action == GLFW_REPEAT))
+        {
+            sphere_quality++;
+            if (sphere_quality > 2)
+            {
+                sphere_quality = 0;
+            }
+        }
         if (key == GLFW_KEY_9 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
-            physicsDimensions++;
-            if (physicsDimensions > 4)
+            physics_dimensions++;
+            if (physics_dimensions > 4)
             {
-                physicsDimensions = 4;
+                physics_dimensions = 4;
             }
         }
         if (key == GLFW_KEY_8 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
-            physicsDimensions--;
-            if (physicsDimensions < 1)
+            physics_dimensions--;
+            if (physics_dimensions < 1)
             {
-                physicsDimensions = 1;
+                physics_dimensions = 1;
             }
         }
         if (key == GLFW_KEY_0 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
-            uneven_sizes = !uneven_sizes;
+            size_mode++;
+            if (size_mode > 2) {
+                size_mode = 0;
+            }
         }
         if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {

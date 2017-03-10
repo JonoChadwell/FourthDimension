@@ -71,7 +71,7 @@ static void init()
 
     rm::init();
 
-    sim = new BallSimulation(HyperShapes::hyper_sphere);
+    sim = new BallSimulation();
 
     for (int i = 0; i < 3; i++) {
         sim->addObject();

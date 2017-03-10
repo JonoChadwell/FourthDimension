@@ -11,7 +11,7 @@ class Program;
 class BallSimulation
 {
 public:
-    BallSimulation(HyperShape *sphere);
+    BallSimulation();
     ~BallSimulation();
 
     void update(float dt);
@@ -20,7 +20,6 @@ public:
     void render(Program *prog, glm::mat4 hypercamera);
 
 private:
-    HyperShape *sphere;
     std::vector<BallObject*> objects;
 
     void applyGravity(float dt);

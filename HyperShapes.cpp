@@ -573,6 +573,8 @@ namespace HyperShapes {
     HyperShape* tetrahedron;
     HyperShape* five_cell;
     HyperShape* hyper_sphere;
+    HyperShape* hyper_sphere_lq;
+    HyperShape* hyper_sphere_hq;
 
     void initialize()
     {
@@ -596,8 +598,14 @@ namespace HyperShapes {
         HyperShapes::five_cell = new Simplex(4);
         HyperShapes::five_cell->init();
 
-        HyperShapes::hyper_sphere = new HyperSphere(HYPERSPHERICAL_PARAMETERIZATION, 25);
+        HyperShapes::hyper_sphere_lq = new HyperSphere(HYPERSPHERICAL_PARAMETERIZATION, 6);
+        HyperShapes::hyper_sphere_lq->init();
+
+        HyperShapes::hyper_sphere = new HyperSphere(HYPERSPHERICAL_PARAMETERIZATION, 15);
         HyperShapes::hyper_sphere->init();
+
+        HyperShapes::hyper_sphere_hq = new HyperSphere(HYPERSPHERICAL_PARAMETERIZATION, 30);
+        HyperShapes::hyper_sphere_hq->init();
 
         cout << "Initialized Geometry\n";
     }

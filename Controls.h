@@ -20,9 +20,10 @@ namespace controls {
     extern bool slice;
     extern bool paused;
     extern bool strange_color;
+    extern int sphere_quality;
     extern float slice_offset;
-    extern bool uneven_sizes;
-    extern int physicsDimensions;
+    extern int size_mode;
+    extern int physics_dimensions;
     extern bool clear;
     extern bool bound_cube;
     extern bool project_strange;

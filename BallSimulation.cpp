@@ -88,8 +88,7 @@ namespace
     }
 }
 
-BallSimulation::BallSimulation(HyperShape *sphere) :
-    sphere(sphere)
+BallSimulation::BallSimulation()
 {
     objects = vector<BallObject*>();
 }
@@ -158,7 +157,7 @@ void BallSimulation::update(float dt)
         wall_collision_min(&(obj->position.y), &(obj->velocity.y), -BOUND, obj->radius);
         wall_collision_max(&(obj->position.y), &(obj->velocity.y), BOUND, obj->radius);
 
-        if (controls::physicsDimensions > 1)
+        if (controls::physics_dimensions > 1)
         {
             wall_collision_min(&(obj->position.x), &(obj->velocity.x), -BOUND, obj->radius);
             wall_collision_max(&(obj->position.x), &(obj->velocity.x), BOUND, obj->radius);
@@ -169,7 +168,7 @@ void BallSimulation::update(float dt)
             wall_collision_max(&(obj->position.x), &(obj->velocity.x), obj->radius + 0.005f, obj->radius);
         }
 
-        if (controls::physicsDimensions > 2)
+        if (controls::physics_dimensions > 2)
         {
             wall_collision_min(&(obj->position.z), &(obj->velocity.z), -BOUND, obj->radius);
             wall_collision_max(&(obj->position.z), &(obj->velocity.z), BOUND, obj->radius);
@@ -180,7 +179,7 @@ void BallSimulation::update(float dt)
             wall_collision_max(&(obj->position.z), &(obj->velocity.z), obj->radius + 0.005f, obj->radius);
         }
 
-        if (controls::physicsDimensions > 3)
+        if (controls::physics_dimensions > 3)
         {
             wall_collision_min(&(obj->position.w), &(obj->velocity.w), -BOUND, obj->radius);
             wall_collision_max(&(obj->position.w), &(obj->velocity.w), BOUND, obj->radius);
@@ -209,14 +208,16 @@ std::uniform_real_distribution<> dis(0, 1);
 void BallSimulation::addObject()
 {
     cout << "Objects: " << objects.size() << endl;
-    if (controls::uneven_sizes)
-    {
+    switch (controls::size_mode) {
+    case 0:
+        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 8 + 0, dis(gen) * 16 - 8, dis(gen) * 16 - 8), 2, 8));
+        break;
+    case 1:
+        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 8 + 0, dis(gen) * 16 - 8, dis(gen) * 16 - 8), 4.08, 8));
+        break;
+    default:
         float radius = dis(gen) * dis(gen) * dis(gen) * dis(gen) * 4 + 1;
         objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 8 + 0, dis(gen) * 16 - 8, dis(gen) * 16 - 8), radius, radius * radius * radius * radius));
-    }
-    else
-    {
-        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 8 + 0, dis(gen) * 16 - 8, dis(gen) * 16 - 8), 2, 8));
     }
 }
 
@@ -228,7 +229,7 @@ void BallSimulation::addObject(vec4 position, float radius, float mass)
 void BallSimulation::render(Program *prog, mat4 hypercamera)
 {
     if (controls::strange_color && prog->mode != RENDER_STRANGE_COLORED) return;
-    if (!controls::strange_color && prog->mode != sphere->defaultRenderMode) return;
+    if (!controls::strange_color && prog->mode != RENDER_QUADS_WIREFRAME) return;
 
     MatrixStack *R = new MatrixStack();
 
@@ -259,7 +260,17 @@ void BallSimulation::render(Program *prog, mat4 hypercamera)
         glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
         glUniform4f(prog->getUniform("objPos"), obj->position.x, obj->position.y, obj->position.z, obj->position.w);
 
-        sphere->draw(prog);
+        switch (controls::sphere_quality) {
+        case 1:
+            HyperShapes::hyper_sphere_lq->draw(prog);
+            break;
+        case 2:
+            HyperShapes::hyper_sphere_hq->draw(prog);
+            break;
+        default:
+            HyperShapes::hyper_sphere->draw(prog);
+        }
+        
 
         R->popMatrix();
     }
