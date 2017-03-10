@@ -19,17 +19,7 @@ namespace controls {
     bool mouse_pos_initialized = false;
     float theta = 0;
     float phi = -M_PI / 6;
-    bool spawn = false;
-    bool slice = false;
-    bool paused = false;
     bool strange_color = false;
-    float slice_offset;
-    bool uneven_sizes = false;
-    int physicsDimensions = 4;
-    bool clear = false;
-    bool bound_cube = false;
-    bool project_strange = false;
-    bool project_gravity = false;
 
     float r1;
     float r2;
@@ -37,7 +27,22 @@ namespace controls {
     float r4;
     float r5;
 
-    glm::vec4 gravity = glm::vec4(0, -9.8f, 0, 0);
+    // Scene Exploration values
+    vec4 cameraPosition;
+    float cameraSize;
+
+    // Physics Simulation values
+    bool spawn = false;
+    bool slice = false;
+    bool paused = false;
+    float slice_offset;
+    bool uneven_sizes = false;
+    int physicsDimensions = 4;
+    bool clear = false;
+    bool bound_cube = false;
+    bool project_strange = false;
+    bool project_gravity = false;
+    vec4 gravity = vec4(0, -9.8f, 0, 0);
 
     void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
     {

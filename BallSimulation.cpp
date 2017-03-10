@@ -211,8 +211,8 @@ void BallSimulation::addObject()
     cout << "Objects: " << objects.size() << endl;
     if (controls::uneven_sizes)
     {
-        float radius = dis(gen) * dis(gen) * dis(gen) * 4 + 1;
-        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 8 + 0, dis(gen) * 16 - 8, dis(gen) * 16 - 8), radius, radius * radius * radius));
+        float radius = dis(gen) * dis(gen) * dis(gen) * dis(gen) * 4 + 1;
+        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 8 + 0, dis(gen) * 16 - 8, dis(gen) * 16 - 8), radius, radius * radius * radius * radius));
     }
     else
     {
