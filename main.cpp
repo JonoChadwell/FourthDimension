@@ -23,6 +23,13 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+// VR
+#define VR_ENABLE true
+#ifdef VR_ENABLE
+#include "VrSubsystem.h"
+#include <openvr.h>
+#endif
+
 #define PLAYER_SPEED 5
 
 #define MAX_TIME_STEP 0.03f
@@ -76,6 +83,10 @@ static void init()
     for (int i = 0; i < 3; i++) {
         sim->addObject();
     }
+
+#ifdef VR_ENABLE
+    vrs::initialize();
+#endif
 }
 
 static vec3 forwards()
@@ -117,6 +128,10 @@ static void update()
             sim->update(delta);
         }
     }
+
+#ifdef VR_ENABLE
+    vrs::updateHmdDevicePositions();
+#endif
 }
 
 static void render4dScene(Program *prog, mat4 hypercamera)
@@ -164,7 +179,7 @@ static void render4dScene(Program *prog, mat4 hypercamera)
     }
 }
 
-static void render4d(Program *prog, float aspect)
+static void render4d(Program *prog, float aspect, mat4 PV)
 {
     prog->bind();
 
@@ -177,27 +192,17 @@ static void render4d(Program *prog, float aspect)
         glUniform1i(prog->getUniform("divW"), 0);
     }
 
-    MatrixStack *P = new MatrixStack();
-    MatrixStack *V = new MatrixStack();
+    
     MatrixStack *M = new MatrixStack();
     MatrixStack *Q = new MatrixStack();
 
-    P->pushMatrix();
-    P->loadIdentity();
-    P->perspective(M_PI / 3, aspect, 0.01f, 100.0f);
-
-    glUniformMatrix4fv(prog->getUniform("P"), 1, GL_FALSE, value_ptr(P->topMatrix()));
-
-    V->pushMatrix();
-    V->loadIdentity();
-
-    V->lookAt(eye, eye + forwards(), vec3(0, 1, 0));
-
-    glUniformMatrix4fv(prog->getUniform("V"), 1, GL_FALSE, value_ptr(V->topMatrix()));
-
+    glUniformMatrix4fv(prog->getUniform("PV"), 1, GL_FALSE, value_ptr(PV));
+#ifdef VR_ENABLE
     M->pushMatrix();
     M->loadIdentity();
-
+    M->translate(vec3(0, 10, 0));
+    M->scale(0.05f);
+#endif
     // 4d->3d camera 3d spatial geometry result transforms
 
 
@@ -215,13 +220,6 @@ static void render4d(Program *prog, float aspect)
     Q->rotate4d(controls::r4, 1, 3);
     Q->rotate4d(controls::r5, 2, 3);
 
-    // Preserve Y
-    //Q->rotate4d(controls::r1, 0, 2);
-    //Q->rotate4d(controls::r2, 0, 3);
-    //Q->rotate4d(controls::r3, 2, 3);
-    //Q->rotate4d(controls::r4, 0, 1);
-    //Q->rotate4d(controls::r5, 1, 2);
-
     glUniformMatrix4fv(prog->getUniform("Q"), 1, GL_FALSE, value_ptr(Q->topMatrix()));
 
     // Sets the viewable "depth" into the 4d result component of the model transforms
@@ -235,8 +233,7 @@ static void render4d(Program *prog, float aspect)
     M->popMatrix();
 
     prog->unbind();
-    delete P;
-    delete V;
+    
     delete M;
     delete Q;
 }
@@ -251,9 +248,38 @@ static void render()
 
     float aspect = (float)width / (float)height;
 
-    render4d(rm::getProgram(RENDER_TRIS_WIREFRAME), aspect);
-    render4d(rm::getProgram(RENDER_QUADS_WIREFRAME), aspect);
-    render4d(rm::getProgram(RENDER_STRANGE_COLORED), aspect);
+    MatrixStack *PV = new MatrixStack();
+    PV->pushMatrix();
+    PV->loadIdentity();
+    PV->perspective(M_PI / 3, aspect, 0.01f, 100.0f);
+
+    PV->pushMatrix();
+
+    PV->lookAt(eye, eye + forwards(), vec3(0, 1, 0));
+
+    render4d(rm::getProgram(RENDER_TRIS_WIREFRAME), aspect, PV->topMatrix());
+    render4d(rm::getProgram(RENDER_QUADS_WIREFRAME), aspect, PV->topMatrix());
+    render4d(rm::getProgram(RENDER_STRANGE_COLORED), aspect, PV->topMatrix());
+
+#ifdef VR_ENABLE
+    mat4 eye = vrs::startVrEyeRender(vr::Eye_Left);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    render4d(rm::getProgram(RENDER_TRIS_WIREFRAME), aspect, eye);
+    render4d(rm::getProgram(RENDER_QUADS_WIREFRAME), aspect, eye);
+    render4d(rm::getProgram(RENDER_STRANGE_COLORED), aspect, eye);
+    vrs::stopVrEyeRender();
+    eye = vrs::startVrEyeRender(vr::Eye_Right);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    render4d(rm::getProgram(RENDER_TRIS_WIREFRAME), aspect, eye);
+    render4d(rm::getProgram(RENDER_QUADS_WIREFRAME), aspect, eye);
+    render4d(rm::getProgram(RENDER_STRANGE_COLORED), aspect, eye);
+    vrs::stopVrEyeRender();
+    vrs::finishVrFrame();
+#endif
+
+    PV->popMatrix();
+    PV->popMatrix();
+    delete PV;
 }
 
 int main(int argc, char **argv)
@@ -275,6 +301,7 @@ int main(int argc, char **argv)
     if (!window) {
         glfwTerminate();
         cerr << "Couldn't create opengl window" << endl;
+        getchar();
         return EXIT_FAILURE;
     }
 
@@ -285,6 +312,7 @@ int main(int argc, char **argv)
     glewExperimental = true;
     if (glewInit() != GLEW_OK) {
         cerr << "Failed to initialize GLEW" << endl;
+        getchar();
         return EXIT_FAILURE;
     }
 
@@ -327,5 +355,6 @@ int main(int argc, char **argv)
     glfwDestroyWindow(window);
     glfwTerminate();
 
+    getchar();
     return EXIT_SUCCESS;
 }

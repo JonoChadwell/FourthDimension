@@ -78,6 +78,7 @@ namespace {
         else
         {
             cerr << "Invalid hypersphere parameterization\n";
+            getchar();
             exit(EXIT_FAILURE);
         }
 
@@ -135,6 +136,8 @@ void HyperShape::init()
 
     if (glGetError() != GL_NO_ERROR)
     {
+        cerr << "Opengl Error\n";
+        getchar();
         exit(EXIT_FAILURE);
     }
 }
@@ -604,7 +607,7 @@ namespace HyperShapes {
         HyperShapes::hyper_sphere = new HyperSphere(HYPERSPHERICAL_PARAMETERIZATION, 15);
         HyperShapes::hyper_sphere->init();
 
-        HyperShapes::hyper_sphere_hq = new HyperSphere(HYPERSPHERICAL_PARAMETERIZATION, 30);
+        HyperShapes::hyper_sphere_hq = new HyperSphere(HYPERSPHERICAL_PARAMETERIZATION, 4);
         HyperShapes::hyper_sphere_hq->init();
 
         cout << "Initialized Geometry\n";

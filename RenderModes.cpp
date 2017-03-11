@@ -10,8 +10,7 @@ namespace rm {
 
     void add4dStuff(Program *prog)
     {
-        prog->addUniform("P");
-        prog->addUniform("V");
+        prog->addUniform("PV");
         prog->addUniform("M");
         prog->addUniform("Q");
         prog->addUniform("R");
