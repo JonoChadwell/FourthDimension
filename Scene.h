@@ -4,6 +4,9 @@
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 
+using namespace glm;
+using namespace std;
+
 class HyperShape;
 class Program;
 
@@ -29,15 +32,13 @@ public:
     Scene();
     ~Scene();
 
-    void update(float dt);
-    void addObject(hyper_object);
+    void addObject(hyper_object obj);
     void addObject(HyperShape *obj, vec4 pos, float scale, hyper_orientation rot);
     void render(Program *prog, glm::mat4 hypercamera, float bound);
 
 private:
     HyperShape *sphere;
-    std::vector<BallObject*> objects;
+    vector<hyper_object> objects;
 
-    void applyGravity(float dt);
 };
 
