@@ -8,7 +8,6 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
-#include <GLFW/glfw3.h>
 
 using namespace std;
 using namespace glm;

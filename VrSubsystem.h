@@ -1,6 +1,5 @@
 #pragma once
-
-#define VR_ENABLE true
+#ifdef VR_ENABLE
 
 #include <openvr.h>
 #include <glm/mat4x4.hpp>
@@ -13,3 +12,4 @@ namespace vrs {
     void finishVrFrame();
     void shutdown();
 }
+#endif

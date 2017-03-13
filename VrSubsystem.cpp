@@ -1,5 +1,7 @@
-#include "MatrixStack.h"
 #include "VrSubsystem.h"
+#ifdef VR_ENABLE
+
+#include "MatrixStack.h"
 #include "Controls.h"
 
 #define _USE_MATH_DEFINES
@@ -248,3 +250,4 @@ namespace vrs {
         glDeleteFramebuffers(1, &rightEyeDesc.m_nResolveFramebufferId);
     }
 }
+#endif
