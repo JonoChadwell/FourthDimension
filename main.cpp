@@ -30,7 +30,7 @@
 #include <openvr.h>
 #endif
 
-#define PLAYER_SPEED 5
+#define PLAYER_SPEED 2
 
 #define MAX_TIME_STEP 0.03f
 #define MAX_PHYSICS_STEPS_PER_FRAME 2
@@ -47,7 +47,7 @@ BallSimulation *sim;
 
 // Program* point_prog;
 
-vec3 eye = vec3(0, 5, -10);
+vec3 eye = vec3(0, 3, -3);
 
 float lastTime = 0;
 
