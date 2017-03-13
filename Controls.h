@@ -4,9 +4,11 @@
 #include <math.h>
 #define ROT_AMT M_PI/200
 
+#include <vector>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <GLFW/glfw3.h>
+#include <glm/mat4x4.hpp>
 
 namespace controls {
     extern glm::vec3 vel;
@@ -27,7 +29,7 @@ namespace controls {
     extern bool clear;
     extern bool bound_cube;
     extern bool project_strange;
-    
+
     extern float r1;
     extern float r2;
     extern float r3;
@@ -35,6 +37,11 @@ namespace controls {
     extern float r5;
 
     extern glm::vec4 gravity;
+
+#ifdef VR_ENABLE
+    extern int num_controllers;
+    extern std::vector<glm::mat4> controller_positions;
+#endif
 
     void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
     void mouse_callback(GLFWwindow *window, int button, int action, int mods);

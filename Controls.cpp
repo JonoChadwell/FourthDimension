@@ -4,11 +4,13 @@
 #include <math.h>
 #define ROT_AMT M_PI/200
 
+#include <vector>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 #include <GLFW/glfw3.h>
 
+using namespace std;
 using namespace glm;
 
 namespace controls {
@@ -44,6 +46,12 @@ namespace controls {
     bool project_strange = false;
     bool project_gravity = false;
     vec4 gravity = vec4(0, -9.8f, 0, 0);
+
+    // VR control values
+#ifdef VR_ENABLE
+    int num_controllers;
+    vector<mat4> controller_positions;
+#endif
 
     void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
     {
