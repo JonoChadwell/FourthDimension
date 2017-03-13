@@ -4,7 +4,6 @@
 #include <vector>
 #include <memory>
 
-#include "Shape.h"
 #include "RenderModes.h"
 
 #define HYPERSPHERICAL_PARAMETERIZATION 1
@@ -20,6 +19,8 @@ public:
     virtual ~HyperShape();
     void init();
     void draw(Program *prog);
+    float getBound();
+
     int defaultRenderMode;
 
 protected:
@@ -29,6 +30,8 @@ protected:
     std::vector<float> sideBuf;
 
 private:
+    float calcBound();
+    float bound;
     unsigned eleBufID;
     unsigned posBufID;
     unsigned sideBufID;

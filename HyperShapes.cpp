@@ -106,6 +106,8 @@ void HyperShape::init()
 {
     load_geometry();
 
+    bound = calcBound();
+
     // Initialize the vertex array object
     glGenVertexArrays(1, &vaoID);
     glBindVertexArray(vaoID);
@@ -175,6 +177,29 @@ void HyperShape::draw(Program *prog)
     GLSL::disableVertexAttribArray(h_pos);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+float HyperShape::calcBound()
+{
+    float max = 0.0f;
+    for (int i = 0; i < posBuf.size(); i += 4) {
+        float dist = sqrt(
+            posBuf[i] * posBuf[i] +
+            posBuf[i + 1] * posBuf[i + 1] +
+            posBuf[i + 2] * posBuf[i + 2] +
+            posBuf[i + 3] * posBuf[i + 3]
+        );
+        if (max < dist) {
+            max = dist;
+        }
+    }
+    return max;
+}
+
+
+float HyperShape::getBound()
+{
+    return bound;
 }
 
 HyperSphere::HyperSphere(int parameterization, int divisions) :
