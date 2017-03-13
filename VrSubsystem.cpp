@@ -1,4 +1,6 @@
 #include "MatrixStack.h"
+#include "VrSubsystem.h"
+#include "Controls.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -227,39 +229,22 @@ namespace vrs {
         }
     }
 
-    /*
-    void renderScene(vr::Hmd_Eye eye)
+    void shutdown()
     {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
-
-        mat4 mvpMatrix = getCurrentMvpMatrix(eye);
-    }
-
-    void renderEye(vr::Hmd_Eye eye, FramebufferDesc fb)
-    {
-
-    }
-
-    void render()
-    {
+        vr::VR_Shutdown();
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_FALSE);
+        glDebugMessageCallback(nullptr, nullptr);
         
-        vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-		vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
-		vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-		vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
+        glDeleteRenderbuffers(1, &leftEyeDesc.m_nDepthBufferId);
+        glDeleteTextures(1, &leftEyeDesc.m_nRenderTextureId);
+        glDeleteFramebuffers(1, &leftEyeDesc.m_nRenderFramebufferId);
+        glDeleteTextures(1, &leftEyeDesc.m_nResolveTextureId);
+        glDeleteFramebuffers(1, &leftEyeDesc.m_nResolveFramebufferId);
         
-
-        updateHmdDevicePositions();
-
-        mat4 m = getCurrentMvpMatrix(vr::Eye_Left);
-        MatrixStack *mstack = new MatrixStack();
-        mstack->pushMatrix();
-        mstack->loadIdentity();
-        mstack->multMatrix(hmd_pose);
-        mstack->print();
-        mstack->popMatrix();
-        delete mstack;
+        glDeleteRenderbuffers(1, &rightEyeDesc.m_nDepthBufferId);
+        glDeleteTextures(1, &rightEyeDesc.m_nRenderTextureId);
+        glDeleteFramebuffers(1, &rightEyeDesc.m_nRenderFramebufferId);
+        glDeleteTextures(1, &rightEyeDesc.m_nResolveTextureId);
+        glDeleteFramebuffers(1, &rightEyeDesc.m_nResolveFramebufferId);
     }
-    */
 }

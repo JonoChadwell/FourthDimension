@@ -24,7 +24,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 // VR
-#define VR_ENABLE true
+//#define VR_ENABLE true
 #ifdef VR_ENABLE
 #include "VrSubsystem.h"
 #include <openvr.h>
@@ -197,15 +197,12 @@ static void render4d(Program *prog, float aspect, mat4 PV)
     MatrixStack *Q = new MatrixStack();
 
     glUniformMatrix4fv(prog->getUniform("PV"), 1, GL_FALSE, value_ptr(PV));
-#ifdef VR_ENABLE
+
+    // 4d->3d camera 3d spatial geometry result transforms
     M->pushMatrix();
     M->loadIdentity();
-    M->translate(vec3(0, 10, 0));
-    M->scale(0.05f);
-#endif
-    // 4d->3d camera 3d spatial geometry result transforms
-
-
+    M->scale(0.1f);
+    M->translate(vec3(0, 15, 0));
     glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(M->topMatrix()));
 
     Q->pushMatrix();
@@ -322,7 +319,11 @@ int main(int argc, char **argv)
     cout << "GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 
     // Set vsync.
+#ifdef VR_ENABLE
+    glfwSwapInterval(0);
+#else
     glfwSwapInterval(1);
+#endif
     // Set keyboard callback.
     glfwSetKeyCallback(window, controls::key_callback);
     //set the mouse call back
@@ -350,6 +351,10 @@ int main(int argc, char **argv)
         // Poll for and process events.
         glfwPollEvents();
     }
+
+#ifdef VR_ENABLE
+    vrs::shutdown();
+#endif
 
     // Quit program.
     glfwDestroyWindow(window);

@@ -7,8 +7,12 @@
 #include <vector>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <GLFW/glfw3.h>
 #include <glm/mat4x4.hpp>
+
+// OpenGL
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+#include <GLFW/glfw3.h>
 
 namespace controls {
     extern glm::vec3 vel;
