@@ -1,5 +1,5 @@
+#define VR_ENABLE
 #include "VrSubsystem.h"
-#ifdef VR_ENABLE
 
 #include "MatrixStack.h"
 #include "Controls.h"
@@ -215,19 +215,32 @@ namespace vrs {
         vr::VRCompositor()->WaitGetPoses(devicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
         m_iValidPoseCount = 0;
-        for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
+        for (int device = 0; device < vr::k_unMaxTrackedDeviceCount; ++device)
         {
-            if (devicePose[nDevice].bPoseIsValid)
+            if (devicePose[device].bPoseIsValid)
             {
                 m_iValidPoseCount++;
-                deviceMat[nDevice] = convertMatrix(devicePose[nDevice].mDeviceToAbsoluteTracking);
-                deviceClass[nDevice] = vr_system->GetTrackedDeviceClass(nDevice);
+                deviceMat[device] = convertMatrix(devicePose[device].mDeviceToAbsoluteTracking);
+                deviceClass[device] = vr_system->GetTrackedDeviceClass(device);
             }
         }
 
         if (devicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
         {
             hmd_pose = inverse(deviceMat[vr::k_unTrackedDeviceIndex_Hmd]);
+            controls::hmd_position = deviceMat[vr::k_unTrackedDeviceIndex_Hmd];
+        }
+
+        controls::num_controllers = 0;
+        controls::controller_positions.clear();
+
+        for (int device = 0; device < vr::k_unMaxTrackedDeviceCount; ++device)
+        {
+            if (devicePose[device].bPoseIsValid && deviceClass[device] == vr::TrackedDeviceClass_Controller)
+            {
+                controls::num_controllers++;
+                controls::controller_positions.push_back(deviceMat[device]);
+            }
         }
     }
 
@@ -249,5 +262,13 @@ namespace vrs {
         glDeleteTextures(1, &rightEyeDesc.m_nResolveTextureId);
         glDeleteFramebuffers(1, &rightEyeDesc.m_nResolveFramebufferId);
     }
+
+    vec3 getPosition(mat4 pose)
+    {
+        return vec3(
+            pose[3][0],
+            pose[3][1],
+            pose[3][2]
+        );
+    }
 }
-#endif

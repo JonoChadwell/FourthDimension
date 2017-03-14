@@ -5,6 +5,7 @@
 #define RENDER_TRIS_WIREFRAME 1
 #define RENDER_QUADS_WIREFRAME 2
 #define RENDER_STRANGE_COLORED 3
+#define RENDER_3D 4
 
 class Program;
 

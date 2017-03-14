@@ -7,6 +7,7 @@ namespace rm {
     Program *wftris;
     Program *wfquads;
     Program *strangesurfaces;
+    Program *threedim;
 
     void add4dStuff(Program *prog)
     {
@@ -20,6 +21,17 @@ namespace rm {
         prog->addUniform("sliceOffset");
         prog->addAttribute("vertPos");
         prog->addAttribute("vertSide");
+    }
+
+
+    void add3dStuff(Program *prog)
+    {
+        prog->addUniform("PV");
+        prog->addUniform("M");
+        prog->addUniform("eye");
+        prog->addAttribute("vertPos");
+        prog->addAttribute("vertNor");
+        prog->addAttribute("vertTex");
     }
 
     void init()
@@ -44,6 +56,13 @@ namespace rm {
         strangesurfaces->setRenderMode(RENDER_STRANGE_COLORED);
         strangesurfaces->init();
         add4dStuff(strangesurfaces);
+
+        threedim = new Program();
+        threedim->setVerbose(true);
+        threedim->setShaderNames("phong_vert.glsl", "phong_frag.glsl");
+        threedim->setRenderMode(RENDER_3D);
+        threedim->init();
+        add3dStuff(threedim);
     }
 
     Program* getProgram(RENDER_MODE mode)
@@ -59,6 +78,10 @@ namespace rm {
         if (mode == RENDER_STRANGE_COLORED)
         {
             return strangesurfaces;
+        }
+        if (mode == RENDER_3D)
+        {
+            return threedim;
         }
         std::cerr << "UNKNOWN MODE\n";
         exit(EXIT_FAILURE);

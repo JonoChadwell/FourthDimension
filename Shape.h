@@ -1,4 +1,3 @@
-/*
 #pragma once
 
 #include <string>
@@ -29,4 +28,3 @@ private:
     unsigned texBufID;
     unsigned vaoID;
 };
-*/

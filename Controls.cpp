@@ -47,10 +47,9 @@ namespace controls {
     vec4 gravity = vec4(0, -9.8f, 0, 0);
 
     // VR control values
-#ifdef VR_ENABLE
-    int num_controllers;
-    vector<mat4> controller_positions;
-#endif
+    int num_controllers = 0;
+    vector<mat4> controller_positions = {};
+    glm::mat4 hmd_position = mat4(0);
 
     void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
     {

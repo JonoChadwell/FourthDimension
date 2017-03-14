@@ -42,10 +42,9 @@ namespace controls {
 
     extern glm::vec4 gravity;
 
-#ifdef VR_ENABLE
     extern int num_controllers;
     extern std::vector<glm::mat4> controller_positions;
-#endif
+    extern glm::mat4 hmd_position;
 
     void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
     void mouse_callback(GLFWwindow *window, int button, int action, int mods);

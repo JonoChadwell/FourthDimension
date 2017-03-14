@@ -24,7 +24,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 // VR
-//#define VR_ENABLE true
+#define VR_ENABLE true
 #ifdef VR_ENABLE
 #include "VrSubsystem.h"
 #include <openvr.h>
@@ -44,6 +44,9 @@ int window_width = 800;
 int window_height = 600;
 
 BallSimulation *sim;
+#ifdef VR_ENABLE
+Shape *vr_controller_model;
+#endif
 
 // Program* point_prog;
 
@@ -86,6 +89,9 @@ static void init()
 
 #ifdef VR_ENABLE
     vrs::initialize();
+    vr_controller_model = new Shape();
+    vr_controller_model->loadMesh("controller.obj");
+    vr_controller_model->init();
 #endif
 }
 
@@ -179,6 +185,31 @@ static void render4dScene(Program *prog, mat4 hypercamera)
     }
 }
 
+static void render3d(Program *prog, float aspect, mat4 PV, vec3 eye)
+{
+    prog->bind();
+
+    glUniformMatrix4fv(prog->getUniform("PV"), 1, GL_FALSE, value_ptr(PV));
+
+    MatrixStack *M = new MatrixStack();
+
+    M->pushMatrix();
+    M->loadIdentity();
+
+    glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(M->topMatrix()));
+    glUniform3f(prog->getUniform("eye"), eye.x, eye.y, eye.z);
+
+#ifdef VR_ENABLE
+    vr_controller_model->draw(prog);
+#endif
+
+    M->popMatrix();
+
+    prog->unbind();
+
+    delete M;
+}
+
 static void render4d(Program *prog, float aspect, mat4 PV)
 {
     prog->bind();
@@ -257,6 +288,7 @@ static void render()
     render4d(rm::getProgram(RENDER_TRIS_WIREFRAME), aspect, PV->topMatrix());
     render4d(rm::getProgram(RENDER_QUADS_WIREFRAME), aspect, PV->topMatrix());
     render4d(rm::getProgram(RENDER_STRANGE_COLORED), aspect, PV->topMatrix());
+    render3d(rm::getProgram(RENDER_3D), aspect, PV->topMatrix(), eye);
 
 #ifdef VR_ENABLE
     mat4 eye = vrs::startVrEyeRender(vr::Eye_Left);

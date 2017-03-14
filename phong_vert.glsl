@@ -13,5 +13,5 @@ void main()
    fragNor = normalize((M * vec4(vertNor, 0.0)).xyz);
    fragWorld = vec3(M * vertPos);
    viewDir = normalize(eye - fragWorld);
-   gl_Position = P * V * M * vertPos;
+   gl_Position = PV * M * vertPos;
 }

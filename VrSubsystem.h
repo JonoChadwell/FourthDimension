@@ -2,6 +2,7 @@
 #ifdef VR_ENABLE
 
 #include <openvr.h>
+#include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 
 namespace vrs {
@@ -11,5 +12,6 @@ namespace vrs {
     void stopVrEyeRender();
     void finishVrFrame();
     void shutdown();
+    glm::vec3 getPosition(glm::mat4 pose);
 }
 #endif
