@@ -14,7 +14,7 @@
 #define BOUND 10.0f
 
 // objects below this point will recieve quadratically less gravity to prevent jitter
-#define GRAVITY_FALLOFF_HEIGHT 0.02f
+#define GRAVITY_FALLOFF_HEIGHT 0.04f
 
 // the amount of energy preseved in a collision
 #define COEFFICIENT_OF_RESTITUTION 0.5f

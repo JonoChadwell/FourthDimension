@@ -24,7 +24,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 // VR
-#define VR_ENABLE true
+//#define VR_ENABLE true
 #ifdef VR_ENABLE
 #include "VrSubsystem.h"
 #include <openvr.h>

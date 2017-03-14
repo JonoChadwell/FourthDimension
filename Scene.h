@@ -20,9 +20,9 @@ struct hyper_orientation {
 };
 
 struct hyper_object {
-    HyperShape *obj;
+    HyperShape *model;
     vec4 pos;
-    float scale;
+    vec4 scale;
     hyper_orientation rot;
 };
 
@@ -33,8 +33,8 @@ public:
     ~Scene();
 
     void addObject(hyper_object obj);
-    void addObject(HyperShape *obj, vec4 pos, float scale, hyper_orientation rot);
-    void render(Program *prog, glm::mat4 hypercamera, float bound);
+    void addObject(HyperShape *model, vec4 pos, vec4 scale, hyper_orientation rot);
+    void render(Program *prog, glm::mat4 hypercamera, vec4 hypercameraPos, float bound);
 
 private:
     HyperShape *sphere;
