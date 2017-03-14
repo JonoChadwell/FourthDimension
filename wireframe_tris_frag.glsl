@@ -2,6 +2,7 @@
 
 uniform float sliceWidth;
 uniform float sliceOffset;
+uniform float wireframeWidth;
 
 in float wPart;
 in vec3 fragWorld;
@@ -22,7 +23,7 @@ void main()
     }
 
     float en = edginessTri(fragSide);
-    if (en < 0.85)
+    if (en < wireframeWidth)
     {
         discard;
     }

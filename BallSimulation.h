@@ -23,6 +23,6 @@ private:
     std::vector<BallObject*> objects;
 
     void applyGravity(float dt);
-    void setControlledPositions();
+    void setControlledPositions(float dt);
 };
 

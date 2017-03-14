@@ -92,13 +92,14 @@ namespace
         MatrixStack *Q = new MatrixStack();
         Q->pushMatrix();
         Q->loadIdentity();
-        Q->rotate4d(-controls::r5, 2, 3);
-        Q->rotate4d(-controls::r4, 1, 3);
-        Q->rotate4d(-controls::r3, 0, 3);
-        Q->rotate4d(-controls::r2, 0, 2);
-        Q->rotate4d(-controls::r1, 0, 1);
-        mat4 top = Q->topMatrix();
-        return top * vec4(realPos.x, realPos.y, realPos.z, controls::slice_offset / 10.0f);
+        Q->rotate4d(controls::r1, 0, 1);
+        Q->rotate4d(controls::r2, 0, 2);
+        Q->rotate4d(controls::r3, 0, 3);
+        Q->rotate4d(controls::r4, 1, 3);
+        Q->rotate4d(controls::r5, 2, 3);
+        mat4 top = inverse(Q->topMatrix());
+        vec4 rtn = top * vec4(realPos.x, realPos.y, realPos.z, -controls::slice_offset);
+        return rtn;
     }
 
     vec3 getPosition(mat4 pose)
@@ -224,7 +225,7 @@ void BallSimulation::update(float dt)
     }
 
     // set positions of player controlled objects
-    setControlledPositions();
+    setControlledPositions(dt);
 }
 
 std::random_device rd;
@@ -334,11 +335,21 @@ void BallSimulation::applyGravity(float dt)
     }
 }
 
-void BallSimulation::setControlledPositions()
+vector<vec4> oldPositions = {};
+
+void BallSimulation::setControlledPositions(float dt)
 {
+    vector<vec4> newOldPositions = {};
     for (int i = 0; i < controls::num_controllers && i < objects.size(); i++)
     {
-        objects[i]->position = convertToHyperspace(getPosition(controls::controller_positions[i])) * 10.0f - vec4(0, 15, 0, 0);
+        vec4 newPos = convertToHyperspace(getPosition(controls::controller_positions[i]) * 10.0f - vec3(0, 15, 0));
+        objects[i]->position = newPos;
+        newOldPositions.push_back(newPos);
+
+        if (i < oldPositions.size()) {
+            objects[i]->velocity = (newPos - oldPositions[i]) / dt;
+        }
         objects[i]->radius = 0.8;
     }
+    oldPositions = newOldPositions;
 }

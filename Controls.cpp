@@ -4,6 +4,8 @@
 #include <math.h>
 #define ROT_AMT M_PI/200
 
+#define GRAVITY -32.2f
+
 #include <vector>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -44,7 +46,7 @@ namespace controls {
     bool bound_cube = false;
     bool project_strange = false;
     bool project_gravity = false;
-    vec4 gravity = vec4(0, -9.8f, 0, 0);
+    vec4 gravity = vec4(0, GRAVITY, 0, 0);
 
     // VR control values
     int num_controllers = 0;
@@ -287,11 +289,11 @@ namespace controls {
             Q->rotate4d(-controls::r2, 0, 2);
             Q->rotate4d(-controls::r1, 0, 1);
             mat4 top = Q->topMatrix();
-            gravity = top * vec4(0, 1, 0, 0) * -9.8f;
+            gravity = top * vec4(0, 1, 0, 0) * GRAVITY;
         }
         if (key == GLFW_KEY_C && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
-            gravity = vec4(0, -9.8f, 0, 0);
+            gravity = vec4(0, GRAVITY, 0, 0);
         }
     }
 

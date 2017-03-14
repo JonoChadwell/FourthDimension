@@ -151,9 +151,11 @@ static void render4dScene(Program *prog, mat4 hypercamera)
     {
         glUniform1f(prog->getUniform("sliceWidth"), 20.0f);
     }
+    glUniform1f(prog->getUniform("wireframeWidth"), 0.83f);
 
     sim->render(prog, hypercamera);
 
+    glUniform1f(prog->getUniform("wireframeWidth"), 0.95f);
     if (prog->mode == HyperShapes::hyper_cube->defaultRenderMode)
     {
         MatrixStack *R = new MatrixStack();
@@ -228,7 +230,6 @@ static void render4d(Program *prog, float aspect, mat4 PV)
     {
         glUniform1i(prog->getUniform("divW"), 0);
     }
-
     
     MatrixStack *M = new MatrixStack();
     MatrixStack *Q = new MatrixStack();

@@ -19,6 +19,7 @@ namespace rm {
         prog->addUniform("divW");
         prog->addUniform("sliceWidth");
         prog->addUniform("sliceOffset");
+        prog->addUniform("wireframeWidth");
         prog->addAttribute("vertPos");
         prog->addAttribute("vertSide");
     }
