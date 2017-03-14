@@ -86,6 +86,29 @@ namespace
             *position = wall_pos - radius;
         }
     }
+
+    vec4 convertToHyperspace(vec3 realPos)
+    {
+        MatrixStack *Q = new MatrixStack();
+        Q->pushMatrix();
+        Q->loadIdentity();
+        Q->rotate4d(-controls::r5, 2, 3);
+        Q->rotate4d(-controls::r4, 1, 3);
+        Q->rotate4d(-controls::r3, 0, 3);
+        Q->rotate4d(-controls::r2, 0, 2);
+        Q->rotate4d(-controls::r1, 0, 1);
+        mat4 top = Q->topMatrix();
+        return top * vec4(realPos.x, realPos.y, realPos.z, controls::slice_offset);
+    }
+
+    vec3 getPosition(mat4 pose)
+    {
+        return vec3(
+            pose[3][0],
+            pose[3][1],
+            pose[3][2]
+        );
+    }
 }
 
 BallSimulation::BallSimulation()
@@ -199,6 +222,9 @@ void BallSimulation::update(float dt)
         BallObject *obj = objects[i];
         obj->velocity *= 1 - (FRICTION * dt);
     }
+
+    // set positions of player controlled objects
+    setControlledPositions();
 }
 
 std::random_device rd;
@@ -308,3 +334,11 @@ void BallSimulation::applyGravity(float dt)
     }
 }
 
+void BallSimulation::setControlledPositions()
+{
+    for (int i = 0; i < controls::num_controllers && i < objects.size(); i++)
+    {
+        objects[i]->position = convertToHyperspace(getPosition(controls::controller_positions[i])) * 10.0f - vec4(0, 15, 0, 0);
+        objects[i]->radius = 0.8;
+    }
+}

@@ -196,11 +196,17 @@ static void render3d(Program *prog, float aspect, mat4 PV, vec3 eye)
     M->pushMatrix();
     M->loadIdentity();
 
-    glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(M->topMatrix()));
+
     glUniform3f(prog->getUniform("eye"), eye.x, eye.y, eye.z);
 
 #ifdef VR_ENABLE
-    vr_controller_model->draw(prog);
+    for (int i = 0; i < controls::num_controllers; i++)
+    {
+        M->loadIdentity();
+        M->multMatrix(controls::controller_positions[i]);
+        glUniformMatrix4fv(prog->getUniform("M"), 1, GL_FALSE, value_ptr(M->topMatrix()));
+        vr_controller_model->draw(prog);
+    }
 #endif
 
     M->popMatrix();
@@ -291,17 +297,19 @@ static void render()
     render3d(rm::getProgram(RENDER_3D), aspect, PV->topMatrix(), eye);
 
 #ifdef VR_ENABLE
-    mat4 eye = vrs::startVrEyeRender(vr::Eye_Left);
+    mat4 eyeMat = vrs::startVrEyeRender(vr::Eye_Left);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    render4d(rm::getProgram(RENDER_TRIS_WIREFRAME), aspect, eye);
-    render4d(rm::getProgram(RENDER_QUADS_WIREFRAME), aspect, eye);
-    render4d(rm::getProgram(RENDER_STRANGE_COLORED), aspect, eye);
+    render4d(rm::getProgram(RENDER_TRIS_WIREFRAME), aspect, eyeMat);
+    render4d(rm::getProgram(RENDER_QUADS_WIREFRAME), aspect, eyeMat);
+    render4d(rm::getProgram(RENDER_STRANGE_COLORED), aspect, eyeMat);
+    render3d(rm::getProgram(RENDER_3D), aspect, eyeMat, vrs::getPosition(controls::hmd_position));
     vrs::stopVrEyeRender();
-    eye = vrs::startVrEyeRender(vr::Eye_Right);
+    eyeMat = vrs::startVrEyeRender(vr::Eye_Right);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    render4d(rm::getProgram(RENDER_TRIS_WIREFRAME), aspect, eye);
-    render4d(rm::getProgram(RENDER_QUADS_WIREFRAME), aspect, eye);
-    render4d(rm::getProgram(RENDER_STRANGE_COLORED), aspect, eye);
+    render4d(rm::getProgram(RENDER_TRIS_WIREFRAME), aspect, eyeMat);
+    render4d(rm::getProgram(RENDER_QUADS_WIREFRAME), aspect, eyeMat);
+    render4d(rm::getProgram(RENDER_STRANGE_COLORED), aspect, eyeMat);
+    render3d(rm::getProgram(RENDER_3D), aspect, eyeMat, vrs::getPosition(controls::hmd_position));
     vrs::stopVrEyeRender();
     vrs::finishVrFrame();
 #endif

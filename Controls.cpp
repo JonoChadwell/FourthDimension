@@ -288,7 +288,6 @@ namespace controls {
             Q->rotate4d(-controls::r1, 0, 1);
             mat4 top = Q->topMatrix();
             gravity = top * vec4(0, 1, 0, 0) * -9.8f;
-
         }
         if (key == GLFW_KEY_C && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
