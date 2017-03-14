@@ -98,7 +98,7 @@ namespace
         Q->rotate4d(-controls::r2, 0, 2);
         Q->rotate4d(-controls::r1, 0, 1);
         mat4 top = Q->topMatrix();
-        return top * vec4(realPos.x, realPos.y, realPos.z, controls::slice_offset);
+        return top * vec4(realPos.x, realPos.y, realPos.z, controls::slice_offset / 10.0f);
     }
 
     vec3 getPosition(mat4 pose)
