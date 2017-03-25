@@ -54,12 +54,13 @@ void Scene::addObject(HyperShape* model, vec4 pos, vec4 scale, hyper_orientation
 
 void Scene::render(Program* prog, glm::mat4 hypercamera, vec4 hypercameraPos, float bound)
 {
+    MatrixStack *R = new MatrixStack();
+
     R->pushMatrix();
     R->loadIdentity();
 
-    float maxRadius = bound 
+    float maxRadius = bound;
 
-    MatrixStack *R = new MatrixStack();
     for (int i = 0; i < objects.size(); i++)
     {
         hyper_object obj = objects[i];
@@ -72,7 +73,7 @@ void Scene::render(Program* prog, glm::mat4 hypercamera, vec4 hypercameraPos, fl
         R->rotate4d(obj.rot.yz, 1, 2);
         R->rotate4d(obj.rot.yw, 1, 3);
         R->rotate4d(obj.rot.zw, 2, 3);
-        R->scale4d(scale);
+        R->scale4d(obj.scale);
 
         glUniformMatrix4fv(prog->getUniform("R"), 1, GL_FALSE, value_ptr(R->topMatrix()));
         glUniform4f(prog->getUniform("objPos"), obj.pos.x, obj.pos.y, obj.pos.z, obj.pos.w);
