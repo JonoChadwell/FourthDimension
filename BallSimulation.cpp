@@ -237,7 +237,7 @@ void BallSimulation::addObject()
     cout << "Objects: " << objects.size() << endl;
     switch (controls::size_mode) {
     case 0:
-        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 8 + 0, dis(gen) * 16 - 8, dis(gen) * 16 - 8), 2, 8));
+        objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 8 + 0, dis(gen) * 16 - 8, dis(gen) * 16 - 8), 2, 4));
         break;
     case 1:
         objects.push_back(new BallObject(vec4(dis(gen) * 16 - 8, dis(gen) * 8 + 0, dis(gen) * 16 - 8, dis(gen) * 16 - 8), 4.08, 8));

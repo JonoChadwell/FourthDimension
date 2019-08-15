@@ -213,7 +213,9 @@ namespace controls {
         }
         if (key == GLFW_KEY_1 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
+            project_gravity = false;
             gravity = -gravity;
+            printf("Gravity reversed\n");
         }
         if (key == GLFW_KEY_2 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
@@ -222,18 +224,34 @@ namespace controls {
         if (key == GLFW_KEY_3 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             slice = !slice;
+            if (slice) {
+                printf("Entered 'render 3d slice' mode\n");
+            } else {
+                printf("Left 'render 3d slice' mode\n");
+            }
         }
         if (key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             paused = !paused;
+            if (paused) {
+                printf("Simulation Paused\n");
+            } else {
+                printf("Simulation Unpaused\n");
+            }
         }
         if (key == GLFW_KEY_4 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             strange_color = !strange_color;
+            if (strange_color) {
+                printf("Using 4th dimension to set ball color\n");
+            }
         }
         if (key == GLFW_KEY_5 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             project_strange = !project_strange;
+            if (project_strange) {
+                printf("Projecting 4th dimension spatially\n");
+            }
         }
         if (key == GLFW_KEY_6 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
@@ -246,6 +264,7 @@ namespace controls {
             {
                 sphere_quality = 0;
             }
+            printf("Adjusting hypersphere quality\n");
         }
         if (key == GLFW_KEY_9 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
@@ -254,6 +273,7 @@ namespace controls {
             {
                 physics_dimensions = 4;
             }
+            printf("Increasing physics dimensions\n");
         }
         if (key == GLFW_KEY_8 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
@@ -262,6 +282,7 @@ namespace controls {
             {
                 physics_dimensions = 1;
             }
+            printf("Reducing physics dimensions\n");
         }
         if (key == GLFW_KEY_0 && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
@@ -269,14 +290,27 @@ namespace controls {
             if (size_mode > 2) {
                 size_mode = 0;
             }
+            if (size_mode == 0) {
+                printf("Now spawning 'small' balls\n");
+            } else if (size_mode == 1) {
+                printf("Now spawning 'big' balls\n");
+            } else if (size_mode == 2) {
+                printf("Now spawning 'random size' balls\n");
+            }
         }
         if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             clear = true;
+            printf("Cleared balls\n");
         }
         if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
             project_gravity = !project_gravity;
+            if (project_gravity) {
+                printf("Gravity now following visual down\n");
+            } else {
+                printf("Gravity no longer following visual down\n");
+            }
         }
         if (project_gravity)
         {
@@ -295,6 +329,7 @@ namespace controls {
         {
             project_gravity = false;
             gravity = vec4(0, GRAVITY, 0, 0);
+            printf("Gravity reset\n");
         }
     }
 
