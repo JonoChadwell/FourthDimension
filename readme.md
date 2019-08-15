@@ -17,6 +17,7 @@ A prebuilt windows binary is available in the zip file "windows_prebuilt". It sh
 
 # Controls
 
+```
 <LeftCtrl> - release mouse pointer
 
 Mouse + WASD + <LeftShift> + <Space> - Spatial navigation of 3d camera.
@@ -46,4 +47,4 @@ Y, H, N - Adjust 4d camera rotation 2
 U, J, M - Adjust 4d camera rotation 3
 I, K, ',' - Adjust 4d camera rotation 4
 O, L, '.' - Adjust 4d camera rotation 5
-    
+```
