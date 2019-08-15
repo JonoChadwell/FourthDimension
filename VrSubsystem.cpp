@@ -1,4 +1,5 @@
-#define VR_ENABLE
+#ifdef VR_ENABLE
+
 #include "VrSubsystem.h"
 
 #include "MatrixStack.h"
@@ -272,3 +273,5 @@ namespace vrs {
         );
     }
 }
+
+#endif // VR_ENABLE

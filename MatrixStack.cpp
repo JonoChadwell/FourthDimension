@@ -97,10 +97,17 @@ void MatrixStack::rotate(float angle, const vec3 &axis)
 void MatrixStack::rotate4d(float angle, int n1, int n2) {
     mat4 &top = mstack->top();
     mat4 r = glm::mat4();
+   
+    r[0][0] = 1;
+    r[1][1] = 1;
+    r[2][2] = 1;
+    r[3][3] = 1;
+
     r[n1][n1] = cos(angle);
     r[n1][n2] = sin(angle);
     r[n2][n1] = -sin(angle);
     r[n2][n2] = cos(angle);
+
     top *= r;
 }
 

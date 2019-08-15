@@ -293,6 +293,7 @@ namespace controls {
         }
         if (key == GLFW_KEY_C && (action == GLFW_PRESS || action == GLFW_REPEAT))
         {
+            project_gravity = false;
             gravity = vec4(0, GRAVITY, 0, 0);
         }
     }

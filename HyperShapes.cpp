@@ -90,9 +90,9 @@ namespace {
 }
 
 HyperShape::HyperShape(int renderMode) :
-    eleBufID(NULL),
-    posBufID(NULL),
-    sideBufID(NULL),
+    eleBufID(0),
+    posBufID(0),
+    sideBufID(0),
     vaoID(0),
     defaultRenderMode(renderMode)
 {

@@ -1,3 +1,8 @@
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <cmath>
+#include <iostream>
+
 #include "BallSimulation.h"
 #include "Shape.h"
 #include "HyperShapes.h"
@@ -5,11 +10,6 @@
 #include "MatrixStack.h"
 #include "Controls.h"
 #include "RenderModes.h"
-
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <cmath>
-#include <iostream>
 
 // OpenGL
 #include <GL/glew.h>
@@ -82,10 +82,6 @@ static void init()
     rm::init();
 
     sim = new BallSimulation();
-
-    for (int i = 0; i < 3; i++) {
-        sim->addObject();
-    }
 
 #ifdef VR_ENABLE
     vrs::initialize();
@@ -212,7 +208,6 @@ static void render3d(Program *prog, float aspect, mat4 PV, vec3 eye)
 #endif
 
     M->popMatrix();
-
     prog->unbind();
 
     delete M;
